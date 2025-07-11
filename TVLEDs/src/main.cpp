@@ -1,5 +1,15 @@
 #include <Arduino.h>
+#include <AutoWiFi.h>
 
-void setup() {}
+AutoWiFi wifi;
 
-void loop() {}
+void setup() {
+  Serial.begin(115200);
+  while(!Serial);
+
+  wifi.connect();
+}
+
+void loop() {
+  wifi.loop();
+}
