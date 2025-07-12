@@ -13,6 +13,8 @@ RestBeacon beacon;
 
 String onMessage(const Message& msg) {}
 
+void onDiscovery(IPAddress sender, uint16_t port) {}
+
 void setup() {
   Serial.begin(115200);
   while(!Serial);
@@ -22,6 +24,7 @@ void setup() {
   stripDriver.init<DATA_PIN>(NUM_PIXELS, BRIGHTNESS);
 
   beacon.onMessage(onMessage);
+  beacon.onDiscovery(onDiscovery);
 }
 
 void loop() {
