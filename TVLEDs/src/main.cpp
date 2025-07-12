@@ -14,6 +14,12 @@ LEDStripDriver stripDriver;
 RestBeacon beacon(80, 4210, DISCOVERY_PASSCODE);
 TinyFetch client(BASE_URI);
 
+void beaconTask(void* pvParameters) {
+  while (1) {
+    beacon.loop();
+  }
+}
+
 String onMessage(const Message& msg) {
   String action = msg.getProperty("action");
   String reply = "Unknown action";
@@ -38,24 +44,37 @@ String onMessage(const Message& msg) {
   return reply;
 }
 
-void onDiscovery(IPAddress sender, uint16_t port) {}
+void onDiscovery(IPAddress sender, uint16_t port) {
+  Serial.println(sender);
+}
 
 void setup() {
   Serial.begin(115200);
   while(!Serial);
 
-  wifi.connect();
+  AutoWiFi::State state = wifi.connect();
+  
+  if (state == AutoWiFi::State::AP_MODE) return;
 
   stripDriver.init<DATA_PIN>(NUM_PIXELS, BRIGHTNESS);
 
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
   beacon.begin();
+
+  xTaskCreatePinnedToCore(
+    beaconTask,
+    "BeaconTask",
+    4096,
+    nullptr,
+    1,
+    nullptr,
+    1
+  );
 }
 
 void loop() {
   wifi.loop();
   if (wifi.getState() == AutoWiFi::State::AP_MODE) return;
   stripDriver.loop();
-  beacon.loop();
 }
