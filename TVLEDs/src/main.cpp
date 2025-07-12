@@ -2,6 +2,7 @@
 #include <AutoWiFi.h>
 #include <LEDStripDriver.h>
 #include <RestBeacon.h>
+#include "env.h"
 
 const uint16_t NUM_PIXELS = 200;
 const uint16_t BRIGHTNESS = 42;
@@ -9,7 +10,7 @@ const uint16_t DATA_PIN = 13;
 
 AutoWiFi wifi;
 LEDStripDriver stripDriver;
-RestBeacon beacon;
+RestBeacon beacon(80, 4210, DISCOVERY_PASSCODE);
 
 String onMessage(const Message& msg) {}
 
