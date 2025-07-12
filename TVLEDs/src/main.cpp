@@ -20,6 +20,12 @@ void beaconTask(void* pvParameters) {
   }
 }
 
+void ledTask(void* pvParameters) {
+  while (1) {
+    stripDriver.loop();
+  }
+}
+
 String onMessage(const Message& msg) {
   String action = msg.getProperty("action");
   String reply = "Unknown action";
@@ -71,10 +77,18 @@ void setup() {
     nullptr,
     1
   );
+
+  xTaskCreatePinnedToCore(
+    ledTask,
+    "LEDTask",
+    2048,
+    nullptr,
+    1,
+    nullptr,
+    1
+  );
 }
 
 void loop() {
   wifi.loop();
-  if (wifi.getState() == AutoWiFi::State::AP_MODE) return;
-  stripDriver.loop();
 }
