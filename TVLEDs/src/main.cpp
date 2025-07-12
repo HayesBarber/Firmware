@@ -15,7 +15,23 @@ RestBeacon beacon(80, 4210, DISCOVERY_PASSCODE);
 TinyFetch client(BASE_URI);
 
 String onMessage(const Message& msg) {
-  return "";
+  String action = msg.getProperty("action");
+  String reply = "Unknown action";
+
+  if (action == "on") {
+    stripDriver.on();
+    reply = "Turned LEDs on";
+  } else if (action == "off") {
+    stripDriver.off();
+    reply = "Turned LEDs off";
+  } else if (action == "toggle") {
+    stripDriver.toggle();
+    reply = "Toggled LEDs";
+  } else if (action == "powerState"){
+    reply = stripDriver.getPowerState() ? "ON" : "OFF";
+  }
+
+  return reply;
 }
 
 void onDiscovery(IPAddress sender, uint16_t port) {}
