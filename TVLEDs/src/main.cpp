@@ -2,6 +2,7 @@
 #include <AutoWiFi.h>
 #include <LEDStripDriver.h>
 #include <RestBeacon.h>
+#include <TinyFetch.h>
 #include "env.h"
 
 const uint16_t NUM_PIXELS = 200;
@@ -11,6 +12,7 @@ const uint16_t DATA_PIN = 13;
 AutoWiFi wifi;
 LEDStripDriver stripDriver;
 RestBeacon beacon(80, 4210, DISCOVERY_PASSCODE);
+TinyFetch client(BASE_URI);
 
 String onMessage(const Message& msg) {}
 
