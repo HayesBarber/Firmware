@@ -27,8 +27,12 @@ String onMessage(const Message& msg) {
   } else if (action == "toggle") {
     stripDriver.toggle();
     reply = "Toggled LEDs";
-  } else if (action == "powerState"){
+  } else if (action == "powerState") {
     reply = stripDriver.getPowerState() ? "ON" : "OFF";
+  } else if (action == "fill") {
+    String colors = msg.getProperty("colors");
+    stripDriver.fill(colors);
+    reply = "Filled LEDs";
   }
 
   return reply;
