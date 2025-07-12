@@ -50,10 +50,12 @@ void setup() {
 
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
+  beacon.begin();
 }
 
 void loop() {
   wifi.loop();
+  if (wifi.getState() == AutoWiFi::State::AP_MODE) return;
   stripDriver.loop();
   beacon.loop();
 }
