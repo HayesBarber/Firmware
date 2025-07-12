@@ -35,4 +35,5 @@ void setup() {
 void loop() {
   wifi.loop();
   stripDriver.loop();
+  beacon.loop();
 }
