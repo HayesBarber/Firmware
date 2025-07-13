@@ -19,6 +19,7 @@ TinyFetch client(BASE_URI);
 void udpTask(void* pvParameters) {
   while (1) {
     beacon.loopUdp();
+    vTaskDelay(pdMS_TO_TICKS(50));
   }
 }
 
@@ -71,7 +72,7 @@ void setup() {
     "UdpTask",
     4096,
     nullptr,
-    1,
+    2,
     nullptr,
     1
   );
