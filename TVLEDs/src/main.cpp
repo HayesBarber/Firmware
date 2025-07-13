@@ -8,11 +8,19 @@
 const uint16_t NUM_PIXELS = 200;
 const uint8_t BRIGHTNESS = 42;
 const uint16_t DATA_PIN = 13;
+const uint16_t HTTP_PORT = 80;
+const uint16_t UDP_PORT = 4210;
 
 AutoWiFi wifi;
 LEDStripDriver stripDriver;
-RestBeacon beacon(80, 4210, DISCOVERY_PASSCODE);
+RestBeacon beacon(HTTP_PORT, UDP_PORT, DISCOVERY_PASSCODE);
 TinyFetch client(BASE_URI);
+
+void udpTask(void* pvParameters) {
+  while (1) {
+    beacon.loopUdp();
+  }
+}
 
 String onMessage(const Message& msg) {
   String action = msg.getProperty("action");
@@ -55,11 +63,21 @@ void setup() {
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
   beacon.begin();
+
+  xTaskCreatePinnedToCore(
+    udpTask,
+    "UdpTask",
+    4096,
+    nullptr,
+    1,
+    nullptr,
+    1
+  );
 }
 
 void loop() {
   wifi.loop();
   if (wifi.getState() == AutoWiFi::State::AP_MODE) return;
+  beacon.loopHttp();
   stripDriver.loop();
-  beacon.loop();
 }
