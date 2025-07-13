@@ -41,6 +41,8 @@ String onMessage(const Message& msg) {
     String colors = msg.getProperty("colors");
     stripDriver.fill(colors);
     reply = "Filled LEDs";
+  } else if (action == "uptime") {
+    reply = String(millis());
   }
 
   return reply;
