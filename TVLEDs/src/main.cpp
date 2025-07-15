@@ -2,6 +2,7 @@
 #include <AutoWiFi.h>
 #include <LEDStripDriver.h>
 #include <RestBeacon.h>
+#include <Message.h>
 #include <TinyFetch.h>
 #include "env.h"
 
@@ -37,7 +38,7 @@ String onMessage(const Message& msg) {
     stripDriver.toggle();
     reply = "Toggled LEDs";
   } else if (action == "powerState") {
-    reply = stripDriver.getPowerState() ? "ON" : "OFF";
+    reply = stripDriver.getPowerState() ? "on" : "off";
   } else if (action == "fill") {
     String colors = msg.getProperty("colors");
     stripDriver.fill(colors);
@@ -58,6 +59,15 @@ void onDiscovery(IPAddress sender, uint16_t port, const String& message) {
   String baseUrl = "http://" + sender.toString() + ":" + String(port);
   client.setBaseUrl(baseUrl);
   Serial.println("Set base URL to: " + baseUrl);
+
+  Message msg;
+  msg.addProperty("name", "TV LEDs");
+  msg.addProperty("ip", wifi.getIP().toString());
+  msg.addProperty("mac", wifi.getMac());
+  msg.addProperty("type", "other");
+  msg.addProperty("power_state", stripDriver.getPowerState() ? "on" : "off");
+
+  client.post("/discovery/check-in", msg.toJson());
 }
 
 void setup() {
