@@ -13,7 +13,7 @@ const uint16_t UDP_PORT = 4210;
 
 AutoWiFi wifi;
 LEDStripDriver stripDriver;
-RestBeacon beacon(HTTP_PORT, UDP_PORT, DISCOVERY_PASSCODE);
+RestBeacon beacon(HTTP_PORT, UDP_PORT);
 TinyFetch client(BASE_URI);
 
 void udpTask(void* pvParameters) {
@@ -49,7 +49,11 @@ String onMessage(const Message& msg) {
   return reply;
 }
 
-void onDiscovery(IPAddress sender, uint16_t port) {
+void onDiscovery(IPAddress sender, uint16_t port, const String& message) {
+  if (message != DISCOVERY_PASSCODE) {
+    Serial.println("Received discovery message but it did not match the passcode");
+    return;
+  }
   Serial.println(sender);
 }
 
