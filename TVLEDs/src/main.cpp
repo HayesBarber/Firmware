@@ -67,7 +67,9 @@ void onDiscovery(IPAddress sender, uint16_t port, const String& message) {
   msg.addProperty("type", "other");
   msg.addProperty("power_state", stripDriver.getPowerState() ? "on" : "off");
 
-  client.post("/discovery/check-in", msg.toJson());
+  String jsonMessage = msg.toJson();
+  Serial.println("Sending check-in message: " + jsonMessage);
+  client.post("/discovery/check-in", jsonMessage);
 }
 
 void setup() {
