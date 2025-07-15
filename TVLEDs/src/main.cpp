@@ -54,7 +54,10 @@ void onDiscovery(IPAddress sender, uint16_t port, const String& message) {
     Serial.println("Received discovery message but it did not match the passcode");
     return;
   }
-  Serial.println(sender);
+  Serial.println("Received discovery message from: " + sender.toString() + ":" + String(port));
+  String baseUrl = "http://" + sender.toString() + ":" + String(port);
+  client.setBaseUrl(baseUrl);
+  Serial.println("Set base URL to: " + baseUrl);
 }
 
 void setup() {
