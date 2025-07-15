@@ -14,7 +14,7 @@ const uint16_t UDP_PORT = 4210;
 AutoWiFi wifi;
 LEDStripDriver stripDriver;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
-TinyFetch client(BASE_URI);
+TinyFetch client;
 
 void udpTask(void* pvParameters) {
   while (1) {
