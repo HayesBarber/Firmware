@@ -69,7 +69,8 @@ void onDiscovery(IPAddress sender, uint16_t port, const String& message) {
 
   String jsonMessage = msg.toJson();
   Serial.println("Sending check-in message: " + jsonMessage);
-  client.post("/discovery/check-in", jsonMessage);
+  HttpResponse response = client.post("/discovery/check-in", jsonMessage);
+  Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
 void setup() {
