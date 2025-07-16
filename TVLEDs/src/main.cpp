@@ -45,6 +45,8 @@ String onMessage(const Message& msg) {
     reply = "Filled LEDs";
   } else if (action == "uptime") {
     reply = String(millis());
+  } else if (action == "version") {
+    reply = VERSION;
   }
 
   return reply;
