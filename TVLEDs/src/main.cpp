@@ -66,7 +66,7 @@ void onDiscovery(IPAddress sender, uint16_t port, const String& message) {
   msg.addProperty("name", "TV LEDs");
   msg.addProperty("ip", wifi.getIP().toString());
   msg.addProperty("mac", wifi.getMac());
-  msg.addProperty("type", "other");
+  msg.addProperty("type", "led_strip");
   msg.addProperty("power_state", stripDriver.getPowerState() ? "on" : "off");
 
   String jsonMessage = msg.toJson();
