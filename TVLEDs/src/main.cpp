@@ -30,19 +30,19 @@ String onMessage(const Message& msg) {
 
   if (action == "on") {
     stripDriver.on();
-    reply = "Turned LEDs on";
+    reply = "on";
   } else if (action == "off") {
     stripDriver.off();
-    reply = "Turned LEDs off";
+    reply = "off";
   } else if (action == "toggle") {
     stripDriver.toggle();
-    reply = "Toggled LEDs";
+    reply = stripDriver.getPowerState() ? "on" : "off";
   } else if (action == "powerState") {
     reply = stripDriver.getPowerState() ? "on" : "off";
   } else if (action == "fill") {
     String colors = msg.getProperty("colors");
     stripDriver.fill(colors);
-    reply = "Filled LEDs";
+    reply = "on";
   } else if (action == "uptime") {
     reply = String(millis());
   } else if (action == "version") {
