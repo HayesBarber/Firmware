@@ -40,13 +40,13 @@ void setup() {
   while (!Serial)
     ;
 
-  AutoWiFi::State state = wifi.connect();
+  screen.init(onScreenTouch);
 
+  AutoWiFi::State state = wifi.connect();
   if (state == AutoWiFi::State::AP_MODE) {
+    screen.writeText("AP Mode", XL);
     return;
   }
-
-  screen.init(onScreenTouch);
 
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
