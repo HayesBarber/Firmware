@@ -2,9 +2,12 @@
 #include <AutoWiFi.h>
 #include <GFXDriver.h>
 #include <RestBeacon.h>
+#include <RotaryEvents.h>
 
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
+const uint8_t ENCODER_CLK = 13;
+const uint8_t ENCODER_DT = 10;
 
 AutoWiFi wifi;
 GFXDriver screen;
@@ -23,6 +26,10 @@ String onMessage(const Message &msg) {}
 
 void onDiscovery(IPAddress sender, uint16_t port, const String &message) {}
 
+void onLeftTurn() {}
+
+void onRightTurn() {}
+
 void setup() {
   Serial.begin(115200);
   while (!Serial)
@@ -39,6 +46,9 @@ void setup() {
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
   beacon.begin();
+
+  RotaryEvents::getInstance().init(ENCODER_CLK, ENCODER_DT, onLeftTurn,
+                                   onRightTurn, 2);
 
   xTaskCreatePinnedToCore(udpTask, "UdpTask", 4096, nullptr, 2, nullptr, 1);
 }
