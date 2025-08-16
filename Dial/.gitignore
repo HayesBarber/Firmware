@@ -1,0 +1,6 @@
+.pio
+.vscode
+.env
+.DS_Store
+env.h
+ota.ini
