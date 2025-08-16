@@ -25,7 +25,7 @@ void udpTask(void *pvParameters) {
 
 void onScreenTouch() {}
 
-String onMessage(const Message &msg) {}
+String onMessage(const Message &msg) { return ""; }
 
 void onDiscovery(IPAddress sender, uint16_t port, const String &message) {}
 
