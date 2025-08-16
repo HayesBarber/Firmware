@@ -1,9 +1,11 @@
+#include "env.h"
 #include <Arduino.h>
 #include <AutoWiFi.h>
 #include <ButtonHandler.h>
 #include <GFXDriver.h>
 #include <RestBeacon.h>
 #include <RotaryEvents.h>
+#include <TinyFetch.h>
 
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
@@ -14,6 +16,7 @@ const uint8_t BUTTON_PIN = 14;
 AutoWiFi wifi;
 GFXDriver screen;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
+TinyFetch client;
 Button button;
 
 void udpTask(void *pvParameters) {
@@ -27,7 +30,30 @@ void onScreenTouch() {}
 
 String onMessage(const Message &msg) { return ""; }
 
-void onDiscovery(IPAddress sender, uint16_t port, const String &message) {}
+void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
+  if (message != DISCOVERY_PASSCODE) {
+    Serial.println(
+        "Received discovery message but it did not match the passcode");
+    return;
+  }
+
+  Serial.println("Received discovery message from: " + sender.toString() + ":" +
+                 String(port));
+  String baseUrl = "http://" + sender.toString() + ":" + String(port);
+  client.setBaseUrl(baseUrl);
+  Serial.println("Set base URL to: " + baseUrl);
+
+  Message msg;
+  msg.addProperty("name", "Dial");
+  msg.addProperty("ip", wifi.getIP().toString());
+  msg.addProperty("mac", wifi.getMac());
+  msg.addProperty("type", "interface");
+
+  String jsonMessage = msg.toJson();
+  Serial.println("Sending check-in message: " + jsonMessage);
+  HttpResponse response = client.post("/discovery/check-in", jsonMessage);
+  Serial.printf("Check-in response code: %d\n", response.statusCode);
+}
 
 void onLeftTurn() {}
 
