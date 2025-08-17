@@ -70,19 +70,25 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
-void onLeftTurn() { appState = handleEvent(InputEvent::LeftTurn); }
+void onLeftTurn() { appState = handleEvent(appState, InputEvent::LeftTurn); }
 
-void onRightTurn() { appState = handleEvent(InputEvent::RightTurn); }
+void onRightTurn() { appState = handleEvent(appState, InputEvent::RightTurn); }
 
 void onButtonPressed(int pin) {
-  appState = handleEvent(InputEvent::ButtonPress);
+  appState = handleEvent(appState, InputEvent::ButtonPress);
 }
 
-void onScreenTouch() { appState = handleEvent(InputEvent::ScreenTouch); }
+void onScreenTouch() {
+  appState = handleEvent(appState, InputEvent::ScreenTouch);
+}
 
-void onIdleDetected() { appState = handleEvent(InputEvent::IdleDetected); }
+void onIdleDetected() {
+  appState = handleEvent(appState, InputEvent::IdleDetected);
+}
 
-void rotateIdleDisplay() { appState = handleEvent(InputEvent::RotateIdleData); }
+void rotateIdleDisplay() {
+  appState = handleEvent(appState, InputEvent::RotateIdleData);
+}
 
 void applyTheme(Theme &theme) {
   String colors = theme.colors;
@@ -117,7 +123,7 @@ bool timeHasChanged(String currentTime) {
   return newTime == currentTime;
 }
 
-AppState handleEvent(InputEvent e) {
+AppState handleEvent(AppState appState, InputEvent e) {
   AppState newState = transition(appState, e);
 
   if (appState.uiState != newState.uiState) {
