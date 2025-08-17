@@ -191,7 +191,18 @@ void checkIfIdle() {
   }
 }
 
-void displayIdle() {}
+void displayIdle() {
+  String newTime = timeKeeper.getTime12Hour();
+  if (newTime == displayData.time) {
+    return;
+  }
+  displayData.time = newTime;
+
+  if (TimeKeeper::isNight(displayData.time)) {
+    turnDisplayOff();
+    return;
+  }
+}
 
 void setup() {
   Serial.begin(115200);
