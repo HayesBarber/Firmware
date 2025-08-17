@@ -25,7 +25,6 @@ struct AppState {
   std::vector<Theme> themes;
   IdleData idleData;
   unsigned long lastActivityDetected;
-  bool isNight;
   int rotationIndex;
   UIState uiState;
 };
