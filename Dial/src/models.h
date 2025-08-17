@@ -15,8 +15,6 @@ struct Device {
 };
 
 struct DisplayData {
-  bool isIdle;
-  bool isShowingThemes;
   int index;
   String time;
   std::vector<String> extras;

@@ -23,28 +23,7 @@ GFXDriver screen;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
 TinyFetch client;
 Button button;
-std::vector<Device> devices;
-std::vector<Theme> themes;
-DisplayData displayData;
-unsigned long lastActivityDetected = 0;
-bool displayIsOn = true;
-int rotationIndex = 0;
-
-void activityDetected() {
-  markDisplayAsOn();
-  lastActivityDetected = millis();
-}
-
-void markDisplayAsOn() { displayIsOn = true; }
-
-void turnDisplayOff() {
-  if (!displayIsOn) {
-    return;
-  }
-
-  screen.off();
-  displayIsOn = false;
-}
+AppState appState;
 
 void udpTask(void *pvParameters) {
   while (1) {
@@ -91,60 +70,13 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
-void onLeftTurn() { rotate(-1); }
+void onLeftTurn() {}
 
-void onRightTurn() { rotate(1); }
+void onRightTurn() {}
 
-void rotate(int increment) {
-  activityDetected();
-  if (displayData.isIdle) {
-    displayData.isIdle = false;
-    rotationIndex = 0;
-  } else {
-    int newIndex = rotationIndex + increment;
-    int size = devices.size();
-    if (displayData.isShowingThemes) {
-      size = themes.size();
-    }
-    rotationIndex = (newIndex + size) % size;
-  }
+void onButtonPressed(int pin) {}
 
-  displayDeviceOrTheme();
-}
-
-void displayDeviceOrTheme() {
-  if (displayData.isShowingThemes) {
-    Theme current = themes[rotationIndex];
-    screen.drawColors(current.colorsVector, UPPER_THIRD);
-    screen.writeText(current.displayName, MIDDLE_THIRD);
-    screen.writeText("Apply", LOWER_THIRD, S);
-  } else {
-    Device current = devices[rotationIndex];
-    screen.clearThird(UPPER_THIRD);
-    screen.writeText(current.displayName, MIDDLE_THIRD);
-    screen.drawPowerSymbol(LOWER_THIRD);
-  }
-}
-
-void onButtonPressed(int pin) {
-  if (displayData.isIdle) {
-    rotate(0);
-  } else {
-    rotationIndex = 0;
-    displayData.isShowingThemes = !displayData.isShowingThemes;
-    rotate(0);
-  }
-}
-
-void onScreenTouch() {
-  if (displayData.isIdle) {
-    rotate(0);
-  } else if (displayData.isShowingThemes) {
-    applyTheme();
-  } else {
-    toggleDevice();
-  }
-}
+void onScreenTouch() {}
 
 void applyTheme(Theme &theme) {
   String colors = theme.colors;
@@ -154,94 +86,73 @@ void applyTheme(Theme &theme) {
 
 void toggleDevice(Device &device) { client.get(device.toggleUrl); }
 
-void initDisplayData() {
-  displayData.isIdle = true;
-  displayData.isShowingThemes = false;
-  displayData.index = 0;
-  displayData.time = "? PM";
-  displayData.extras = {};
-
-  Device emptyDevice;
-  emptyDevice.displayName = "No Devices";
-  emptyDevice.toggleUrl = "/invalid";
-  devices.push_back(emptyDevice);
-
-  Theme emptyTheme;
-  emptyTheme.displayName = "No Themes";
-  emptyTheme.colors = "None";
-  emptyTheme.colorsVector = {};
-  themes.push_back(emptyTheme);
-}
-
-void checkIfIdle() {
+bool isIdle(const unsigned long lastActivityDetected) {
   unsigned long currentMillis = millis();
   bool isIdle = currentMillis - lastActivityDetected >= IDLE_THRESHOLD_MS;
 
-  if (displayData.isIdle || isIdle) {
-    displayData.isIdle = true;
-    displayData.isShowingThemes = false;
-    rotationIndex = 0;
-    displayIdle();
-  }
+  return isIdle;
 }
 
-void displayIdle() {
-  String newTime = timeKeeper.getTime12Hour();
-  if (newTime == displayData.time) {
-    return;
-  }
-  displayData.time = newTime;
+void displayIdle() {}
 
-  if (TimeKeeper::isNight(displayData.time)) {
-    turnDisplayOff();
-    return;
+AppState handleEvent(InputEvent e) {
+  AppState newState = transition(appState, e);
+
+  if (appState.uiState != newState.uiState) {
+    // todo redraw
   }
 
-  markDisplayAsOn();
+  if (e == InputEvent::ScreenTouch) {
+    if (appState.uiState == UIState::ShowingThemes) {
+      applyTheme(newState.themes[newState.rotationIndex]);
+    } else if (appState.uiState == UIState::ShowingDevices) {
+      toggleDevice(newState.devices[newState.rotationIndex]);
+    }
+  }
 
-  int totalDisplayItems = 1 + (displayData.extras.size());
-  int newDisplayIndex = (1 + displayData.index) % totalDisplayItems;
-  displayData.index = newDisplayIndex;
-
-  String data = displayData.index == 0
-                    ? displayData.time
-                    : displayData.extras[displayData.index - 1];
-
-  screen.clearThird(UPPER_THIRD);
-  screen.clearThird(LOWER_THIRD);
-  screen.writeText(data, MIDDLE_THIRD, XL);
+  return newState;
 }
 
-UIState transition(UIState current, InputEvent e) {
-  switch (current) {
+AppState transition(const AppState &state, InputEvent e) {
+  AppState next = state;
+
+  switch (state.uiState) {
   case UIState::Idle:
     if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
         e == InputEvent::ButtonPress) {
-      return UIState::ShowingDevices;
+      next.uiState = UIState::ShowingDevices;
+      next.rotationIndex = 0;
     }
-    return current;
+    break;
 
   case UIState::ShowingDevices:
-    if (e == InputEvent::ButtonPress) {
-      return UIState::ShowingThemes;
+    if (e == InputEvent::LeftTurn) {
+      int size = next.devices.size();
+      next.rotationIndex = (next.rotationIndex - 1 + size) % size;
+    } else if (e == InputEvent::RightTurn) {
+      int size = next.devices.size();
+      next.rotationIndex = (next.rotationIndex + 1) % size;
+    } else if (e == InputEvent::ButtonPress) {
+      next.rotationIndex = 0;
+      next.uiState = UIState::ShowingThemes;
     }
-    if (e == InputEvent::ScreenTouch) {
-      // toggle device
-      return current;
-    }
-    return current;
+    break;
 
   case UIState::ShowingThemes:
-    if (e == InputEvent::ButtonPress) {
-      return UIState::ShowingDevices;
+    if (e == InputEvent::LeftTurn) {
+      int size = next.themes.size();
+      next.rotationIndex = (next.rotationIndex - 1 + size) % size;
+    } else if (e == InputEvent::RightTurn) {
+      int size = next.themes.size();
+      next.rotationIndex = (next.rotationIndex + 1) % size;
+    } else if (e == InputEvent::ButtonPress) {
+      next.rotationIndex = 0;
+      next.uiState = UIState::ShowingDevices;
     }
-    if (e == InputEvent::ScreenTouch) {
-      // apply theme
-      return current;
-    }
-    return current;
+    break;
   }
-  return current;
+
+  return next;
 }
 
 void setup() {
@@ -256,8 +167,6 @@ void setup() {
     screen.writeText("AP Mode", XL);
     return;
   }
-
-  initDisplayData();
 
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
@@ -279,5 +188,4 @@ void loop() {
   screen.loop();
   beacon.loopHttp();
   button.update();
-  checkIfIdle();
 }
