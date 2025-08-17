@@ -70,17 +70,19 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
-void onLeftTurn() { handleEvent(InputEvent::LeftTurn); }
+void onLeftTurn() { appState = handleEvent(InputEvent::LeftTurn); }
 
-void onRightTurn() { handleEvent(InputEvent::RightTurn); }
+void onRightTurn() { appState = handleEvent(InputEvent::RightTurn); }
 
-void onButtonPressed(int pin) { handleEvent(InputEvent::ButtonPress); }
+void onButtonPressed(int pin) {
+  appState = handleEvent(InputEvent::ButtonPress);
+}
 
-void onScreenTouch() { handleEvent(InputEvent::ScreenTouch); }
+void onScreenTouch() { appState = handleEvent(InputEvent::ScreenTouch); }
 
-void onIdleDetected() { handleEvent(InputEvent::IdleDetected); }
+void onIdleDetected() { appState = handleEvent(InputEvent::IdleDetected); }
 
-void rotateIdleDisplay() { handleEvent(InputEvent::RotateIdleData); }
+void rotateIdleDisplay() { appState = handleEvent(InputEvent::RotateIdleData); }
 
 void applyTheme(Theme &theme) {
   String colors = theme.colors;
