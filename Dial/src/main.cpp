@@ -127,7 +127,6 @@ void displayDeviceOrTheme() {
 }
 
 void onButtonPressed(int pin) {
-  activityDetected();
   if (displayData.isIdle) {
     rotate(0);
   } else {
@@ -138,7 +137,6 @@ void onButtonPressed(int pin) {
 }
 
 void onScreenTouch() {
-  activityDetected();
   if (displayData.isIdle) {
     rotate(0);
   } else if (displayData.isShowingThemes) {
