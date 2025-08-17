@@ -5,8 +5,8 @@
 
 struct Theme {
   String displayName;
+  String colors;
   std::vector<uint16_t> colorsVector;
-  String applyUrl;
 };
 
 struct Device {

@@ -138,7 +138,16 @@ void onScreenTouch() {
   activityDetected();
   if (displayData.isIdle) {
     rotate(0);
+  } else if (displayData.isShowingThemes) {
+    applyTheme();
   }
+}
+
+void applyTheme() {
+  Theme curr = themes[rotationIndex];
+  String colors = curr.colors;
+  String body = "{ \"colors\": \"" + colors + "\" }";
+  client.post("/themes/apply", body);
 }
 
 void initDisplayData() {
@@ -155,7 +164,7 @@ void initDisplayData() {
 
   Theme emptyTheme;
   emptyTheme.displayName = "No Themes";
-  emptyTheme.applyUrl = "/invalid";
+  emptyTheme.colors = "None";
   emptyTheme.colorsVector = {};
   themes.push_back(emptyTheme);
 }
