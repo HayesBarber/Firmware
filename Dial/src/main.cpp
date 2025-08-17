@@ -80,7 +80,7 @@ void onScreenTouch() { handleEvent(InputEvent::ScreenTouch); }
 
 void onIdleDetected() { handleEvent(InputEvent::IdleDetected); }
 
-void onTimeChanged() { handleEvent(InputEvent::TimeChanged); }
+void rotateIdleDisplay() { handleEvent(InputEvent::RotateIdleData); }
 
 void applyTheme(Theme &theme) {
   String colors = theme.colors;
@@ -102,9 +102,17 @@ bool shouldEnterIdle(const unsigned long lastActivityDetected,
   return isIdle;
 }
 
-bool timeHasChanged(IdleData data) {
+bool shouldRotateIdleData(UIState uiState, String currentTime) {
+  if (uiState != UIState::Idle) {
+    return false;
+  }
+
+  return timeHasChanged(currentTime);
+}
+
+bool timeHasChanged(String currentTime) {
   String newTime = timeKeeper.getTime12Hour();
-  return newTime == data.time;
+  return newTime == currentTime;
 }
 
 AppState handleEvent(InputEvent e) {
@@ -206,7 +214,7 @@ void loop() {
 
   if (shouldEnterIdle(appState.lastActivityDetected, appState.uiState)) {
     onIdleDetected();
-  } else if (timeHasChanged(appState.idleData)) {
-    onTimeChanged();
+  } else if (shouldRotateIdleData(appState.uiState, appState.idleData.time)) {
+    rotateIdleDisplay();
   }
 }
