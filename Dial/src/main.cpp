@@ -78,6 +78,8 @@ void onButtonPressed(int pin) { handleEvent(InputEvent::ButtonPress); }
 
 void onScreenTouch() { handleEvent(InputEvent::ScreenTouch); }
 
+void onIdleDetected() { handleEvent(InputEvent::IdleDetected); }
+
 void applyTheme(Theme &theme) {
   String colors = theme.colors;
   String body = "{ \"colors\": \"" + colors + "\" }";
