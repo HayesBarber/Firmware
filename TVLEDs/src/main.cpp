@@ -49,6 +49,8 @@ String onMessage(const Message &msg) {
     reply = VERSION;
   } else if (action == "getBaseUrl") {
     reply = client.getBaseUrl();
+  } else if (action == "getCurrentColors") {
+    reply = stripDriver.getCurrentColors();
   }
 
   return reply;
