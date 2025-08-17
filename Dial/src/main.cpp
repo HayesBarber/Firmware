@@ -146,17 +146,13 @@ void onScreenTouch() {
   }
 }
 
-void applyTheme() {
-  Theme curr = themes[rotationIndex];
-  String colors = curr.colors;
+void applyTheme(Theme &theme) {
+  String colors = theme.colors;
   String body = "{ \"colors\": \"" + colors + "\" }";
   client.post("/themes/apply", body);
 }
 
-void toggleDevice() {
-  Device curr = devices[rotationIndex];
-  client.get(curr.toggleUrl);
-}
+void toggleDevice(Device &device) { client.get(device.toggleUrl); }
 
 void initDisplayData() {
   displayData.isIdle = true;
@@ -245,7 +241,7 @@ UIState transition(UIState current, InputEvent e) {
     }
     return current;
   }
-  return current; // fallback
+  return current;
 }
 
 void setup() {
