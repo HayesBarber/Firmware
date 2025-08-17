@@ -37,5 +37,6 @@ enum class InputEvent {
   RightTurn,
   ButtonPress,
   ScreenTouch,
-  IdleDetected
+  IdleDetected,
+  TimeChanged
 };

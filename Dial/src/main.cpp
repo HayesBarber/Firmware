@@ -80,6 +80,8 @@ void onScreenTouch() { handleEvent(InputEvent::ScreenTouch); }
 
 void onIdleDetected() { handleEvent(InputEvent::IdleDetected); }
 
+void onTimeChanged() { handleEvent(InputEvent::TimeChanged); }
+
 void applyTheme(Theme &theme) {
   String colors = theme.colors;
   String body = "{ \"colors\": \"" + colors + "\" }";
