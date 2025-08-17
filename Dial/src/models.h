@@ -32,3 +32,5 @@ struct AppState {
 };
 
 enum class UIState { Idle, ShowingDevices, ShowingThemes };
+
+enum class InputEvent { LeftTurn, RightTurn, ButtonPress, ScreenTouch };
