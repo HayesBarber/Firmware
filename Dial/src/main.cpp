@@ -25,6 +25,7 @@ std::vector<Theme> themes;
 DisplayData displayData;
 unsigned long lastActivityDetected = 0;
 bool displayIsOn = true;
+int rotationIndex = 0;
 
 void activityDetected() {
   markDisplayAsOn();
@@ -91,7 +92,36 @@ void onLeftTurn() { rotate(-1); }
 
 void onRightTurn() { rotate(1); }
 
-void rotate(int increment) { activityDetected(); }
+void rotate(int increment) {
+  activityDetected();
+  if (displayData.isIdle) {
+    displayData.isIdle = false;
+    rotationIndex = 0;
+  } else {
+    int newDeviceIndex = rotationIndex + increment;
+    int size = devices.size();
+    if (displayData.isShowingThemes) {
+      size = themes.size();
+    }
+    rotationIndex = (newDeviceIndex + size) % size;
+  }
+
+  displayDeviceOrTheme();
+}
+
+void displayDeviceOrTheme() {
+  if (displayData.isShowingThemes) {
+    Theme current = themes[rotationIndex];
+    screen.drawColors(current.colorsVector, UPPER_THIRD);
+    screen.writeText(current.displayName, MIDDLE_THIRD);
+    screen.writeText("Apply", LOWER_THIRD, S);
+  } else {
+    Device current = devices[rotationIndex];
+    screen.clearThird(UPPER_THIRD);
+    screen.writeText(current.displayName, MIDDLE_THIRD);
+    screen.drawPowerSymbol(LOWER_THIRD);
+  }
+}
 
 void onButtonPressed(int pin) { activityDetected(); }
 
@@ -109,6 +139,8 @@ void setup() {
     screen.writeText("AP Mode", XL);
     return;
   }
+
+  displayData.isIdle = true;
 
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
