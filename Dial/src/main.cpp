@@ -144,8 +144,8 @@ AppState transition(const AppState &state, const InputEvent e) {
       screen.writeText(current.displayName, MIDDLE_THIRD);
       screen.drawPowerSymbol(LOWER_THIRD);
     } else if (e == InputEvent::RotateIdleData) {
-      int totalIdleItems = 1 + (state.idleData.extras.size());
-      int newIndex = (1 + state.idleData.index) % totalIdleItems;
+      int totalIdleItems = 1 + (next.idleData.extras.size());
+      int newIndex = (1 + next.idleData.index) % totalIdleItems;
       next.idleData.index = newIndex;
       next.idleData.time = timeKeeper.getTime12Hour();
       bool isNight = TimeKeeper::isNight(next.idleData.time);
