@@ -265,9 +265,7 @@ void setup() {
 
 void loop() {
   wifi.loop();
-  AutoWiFi::State state = wifi.getState();
-  if (state == AutoWiFi::State::AP_MODE ||
-      state == AutoWiFi::State::NOT_CONNECTED) {
+  if (wifi.getState() == AutoWiFi::State::AP_MODE) {
     return;
   }
 
