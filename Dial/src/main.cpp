@@ -124,6 +124,7 @@ AppState transition(const AppState &state, InputEvent e) {
         e == InputEvent::ButtonPress) {
       next.uiState = UIState::ShowingDevices;
       next.rotationIndex = 0;
+      next.lastActivityDetected = millis();
     }
     break;
 
@@ -190,4 +191,8 @@ void loop() {
   screen.loop();
   beacon.loopHttp();
   button.update();
+
+  if (isIdle(appState.lastActivityDetected)) {
+    onIdleDetected();
+  }
 }
