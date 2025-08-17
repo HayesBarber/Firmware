@@ -29,6 +29,7 @@ struct AppState {
   unsigned long lastActivityDetected;
   bool displayIsOn;
   int rotationIndex;
+  UIState uiState;
 };
 
 enum class UIState { Idle, ShowingDevices, ShowingThemes };
