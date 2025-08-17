@@ -262,8 +262,9 @@ void setup() {
 
 void loop() {
   wifi.loop();
-  if (wifi.getState() == AutoWiFi::State::AP_MODE)
+  if (wifi.getState() == AutoWiFi::State::AP_MODE) {
     return;
+  }
 
   screen.loop();
   beacon.loopHttp();
