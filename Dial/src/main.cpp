@@ -70,36 +70,36 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
-void onLeftTurn() { appState = handleEvent(appState, InputEvent::LeftTurn); }
+void onLeftTurn() { appState = transition(appState, InputEvent::LeftTurn); }
 
-void onRightTurn() { appState = handleEvent(appState, InputEvent::RightTurn); }
+void onRightTurn() { appState = transition(appState, InputEvent::RightTurn); }
 
 void onButtonPressed(int pin) {
-  appState = handleEvent(appState, InputEvent::ButtonPress);
+  appState = transition(appState, InputEvent::ButtonPress);
 }
 
 void onScreenTouch() {
-  appState = handleEvent(appState, InputEvent::ScreenTouch);
+  appState = transition(appState, InputEvent::ScreenTouch);
 }
 
 void onIdleDetected() {
-  appState = handleEvent(appState, InputEvent::IdleDetected);
+  appState = transition(appState, InputEvent::IdleDetected);
 }
 
 void rotateIdleDisplay() {
-  appState = handleEvent(appState, InputEvent::RotateIdleData);
+  appState = transition(appState, InputEvent::RotateIdleData);
 }
 
-void applyTheme(Theme &theme) {
+void applyTheme(const Theme &theme) {
   String colors = theme.colors;
   String body = "{ \"colors\": \"" + colors + "\" }";
   client.post("/themes/apply", body);
 }
 
-void toggleDevice(Device &device) { client.get(device.toggleUrl); }
+void toggleDevice(const Device &device) { client.get(device.toggleUrl); }
 
 bool shouldEnterIdle(const unsigned long lastActivityDetected,
-                     UIState uiState) {
+                     const UIState uiState) {
   if (uiState == UIState::Idle) {
     return false;
   }
@@ -110,7 +110,7 @@ bool shouldEnterIdle(const unsigned long lastActivityDetected,
   return isIdle;
 }
 
-bool shouldRotateIdleData(UIState uiState, String currentTime) {
+bool shouldRotateIdleData(const UIState uiState, const String currentTime) {
   if (uiState != UIState::Idle) {
     return false;
   }
@@ -118,30 +118,12 @@ bool shouldRotateIdleData(UIState uiState, String currentTime) {
   return timeHasChanged(currentTime);
 }
 
-bool timeHasChanged(String currentTime) {
+bool timeHasChanged(const String currentTime) {
   String newTime = timeKeeper.getTime12Hour();
   return newTime == currentTime;
 }
 
-AppState handleEvent(AppState appState, InputEvent e) {
-  AppState newState = transition(appState, e);
-
-  if (appState.uiState != newState.uiState) {
-    // todo redraw
-  }
-
-  if (e == InputEvent::ScreenTouch) {
-    if (appState.uiState == UIState::ShowingThemes) {
-      applyTheme(newState.themes[newState.rotationIndex]);
-    } else if (appState.uiState == UIState::ShowingDevices) {
-      toggleDevice(newState.devices[newState.rotationIndex]);
-    }
-  }
-
-  return newState;
-}
-
-AppState transition(const AppState &state, InputEvent e) {
+AppState transition(const AppState &state, const InputEvent e) {
   AppState next = state;
 
   switch (e) {
@@ -177,6 +159,8 @@ AppState transition(const AppState &state, InputEvent e) {
     } else if (e == InputEvent::ButtonPress) {
       next.rotationIndex = 0;
       next.uiState = UIState::ShowingThemes;
+    } else if (e == InputEvent::ScreenTouch) {
+      toggleDevice(next.devices[next.rotationIndex]);
     } else if (e == InputEvent::IdleDetected) {
       next.uiState = UIState::Idle;
       next.idleData.time = timeKeeper.getTime12Hour();
@@ -193,6 +177,8 @@ AppState transition(const AppState &state, InputEvent e) {
     } else if (e == InputEvent::ButtonPress) {
       next.rotationIndex = 0;
       next.uiState = UIState::ShowingDevices;
+    } else if (e == InputEvent::ScreenTouch) {
+      applyTheme(next.themes[next.rotationIndex]);
     } else if (e == InputEvent::IdleDetected) {
       next.uiState = UIState::Idle;
       next.idleData.time = timeKeeper.getTime12Hour();
