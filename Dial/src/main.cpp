@@ -102,7 +102,7 @@ bool shouldEnterIdle(const unsigned long lastActivityDetected,
   return isIdle;
 }
 
-bool timeHasChanged(DisplayData data) {
+bool timeHasChanged(IdleData data) {
   String newTime = timeKeeper.getTime12Hour();
   return newTime == data.time;
 }
@@ -206,7 +206,7 @@ void loop() {
 
   if (shouldEnterIdle(appState.lastActivityDetected, appState.uiState)) {
     onIdleDetected();
-  } else if (timeHasChanged(appState.displayData)) {
+  } else if (timeHasChanged(appState.idleData)) {
     onTimeChanged();
   }
 }

@@ -14,7 +14,7 @@ struct Device {
   String toggleUrl;
 };
 
-struct DisplayData {
+struct IdleData {
   int index;
   String time;
   std::vector<String> extras;
@@ -23,7 +23,7 @@ struct DisplayData {
 struct AppState {
   std::vector<Device> devices;
   std::vector<Theme> themes;
-  DisplayData displayData;
+  IdleData idleData;
   unsigned long lastActivityDetected;
   bool displayIsOn;
   int rotationIndex;
