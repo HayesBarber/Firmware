@@ -144,15 +144,20 @@ AppState handleEvent(AppState appState, InputEvent e) {
 AppState transition(const AppState &state, InputEvent e) {
   AppState next = state;
 
+  switch (e) {
+  case InputEvent::ButtonPress:
+  case InputEvent::ScreenTouch:
+  case InputEvent::LeftTurn:
+  case InputEvent::RightTurn:
+    next.lastActivityDetected = millis();
+  }
+
   switch (state.uiState) {
   case UIState::Idle:
     if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
         e == InputEvent::ButtonPress) {
       next.uiState = UIState::ShowingDevices;
       next.rotationIndex = 0;
-      next.lastActivityDetected = millis();
-    } else if (e == InputEvent::ScreenTouch) {
-      next.lastActivityDetected = millis();
     } else if (e == InputEvent::RotateIdleData) {
       int totalIdleItems = 1 + (state.idleData.extras.size());
       int newIndex = (1 + state.idleData.index) % totalIdleItems;
