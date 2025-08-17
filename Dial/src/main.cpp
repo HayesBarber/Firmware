@@ -140,6 +140,8 @@ void onScreenTouch() {
     rotate(0);
   } else if (displayData.isShowingThemes) {
     applyTheme();
+  } else {
+    toggleDevice();
   }
 }
 
@@ -148,6 +150,11 @@ void applyTheme() {
   String colors = curr.colors;
   String body = "{ \"colors\": \"" + colors + "\" }";
   client.post("/themes/apply", body);
+}
+
+void toggleDevice() {
+  Device curr = devices[rotationIndex];
+  client.get(curr.toggleUrl);
 }
 
 void initDisplayData() {
