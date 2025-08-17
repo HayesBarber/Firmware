@@ -13,3 +13,9 @@ struct Device {
   String displayName;
   String toggleUrl;
 };
+
+struct DisplayData {
+  int index;
+  String time;
+  std::vector<String> extras;
+};
