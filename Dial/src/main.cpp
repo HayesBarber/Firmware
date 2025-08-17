@@ -244,6 +244,9 @@ void setup() {
   if (state == AutoWiFi::State::AP_MODE) {
     screen.writeText("AP Mode", XL);
     return;
+  } else if (state == AutoWiFi::State::NOT_CONNECTED) {
+    screen.writeText("No WiFi", XL);
+    return;
   }
 
   beacon.onMessage(onMessage);
@@ -262,7 +265,9 @@ void setup() {
 
 void loop() {
   wifi.loop();
-  if (wifi.getState() == AutoWiFi::State::AP_MODE) {
+  AutoWiFi::State state = wifi.getState();
+  if (state == AutoWiFi::State::AP_MODE ||
+      state == AutoWiFi::State::NOT_CONNECTED) {
     return;
   }
 
