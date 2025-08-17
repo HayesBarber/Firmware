@@ -206,5 +206,7 @@ void loop() {
 
   if (shouldEnterIdle(appState.lastActivityDetected, appState.uiState)) {
     onIdleDetected();
+  } else if (timeHasChanged(appState.displayData)) {
+    onTimeChanged();
   }
 }
