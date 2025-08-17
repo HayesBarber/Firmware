@@ -88,11 +88,21 @@ void applyTheme(Theme &theme) {
 
 void toggleDevice(Device &device) { client.get(device.toggleUrl); }
 
-bool isIdle(const unsigned long lastActivityDetected) {
+bool shouldEnterIdle(const unsigned long lastActivityDetected,
+                     UIState uiState) {
+  if (uiState == UIState::Idle) {
+    return false;
+  }
+
   unsigned long currentMillis = millis();
   bool isIdle = currentMillis - lastActivityDetected >= IDLE_THRESHOLD_MS;
 
   return isIdle;
+}
+
+bool timeHasChanged(DisplayData data) {
+  String newTime = timeKeeper.getTime12Hour();
+  return newTime == data.time;
 }
 
 AppState handleEvent(InputEvent e) {
@@ -192,7 +202,7 @@ void loop() {
   beacon.loopHttp();
   button.update();
 
-  if (isIdle(appState.lastActivityDetected)) {
+  if (shouldEnterIdle(appState.lastActivityDetected, appState.uiState)) {
     onIdleDetected();
   }
 }
