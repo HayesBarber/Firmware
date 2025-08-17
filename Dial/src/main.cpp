@@ -87,9 +87,11 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
-void onLeftTurn() { activityDetected(); }
+void onLeftTurn() { rotate(-1); }
 
-void onRightTurn() { activityDetected(); }
+void onRightTurn() { rotate(1); }
+
+void rotate(int increment) { activityDetected(); }
 
 void onButtonPressed(int pin) { activityDetected(); }
 
