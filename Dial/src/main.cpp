@@ -178,6 +178,9 @@ AppState transition(const AppState &state, InputEvent e) {
     } else if (e == InputEvent::ButtonPress) {
       next.rotationIndex = 0;
       next.uiState = UIState::ShowingThemes;
+    } else if (e == InputEvent::IdleDetected) {
+      next.uiState = UIState::Idle;
+      next.idleData.time = timeKeeper.getTime12Hour();
     }
     break;
 
@@ -191,6 +194,9 @@ AppState transition(const AppState &state, InputEvent e) {
     } else if (e == InputEvent::ButtonPress) {
       next.rotationIndex = 0;
       next.uiState = UIState::ShowingDevices;
+    } else if (e == InputEvent::IdleDetected) {
+      next.uiState = UIState::Idle;
+      next.idleData.time = timeKeeper.getTime12Hour();
     }
     break;
   }
