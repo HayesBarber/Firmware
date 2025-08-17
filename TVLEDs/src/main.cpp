@@ -47,6 +47,8 @@ String onMessage(const Message &msg) {
     reply = String(millis());
   } else if (action == "version") {
     reply = VERSION;
+  } else if (action == "getBaseUrl") {
+    reply = client.getBaseUrl();
   }
 
   return reply;
