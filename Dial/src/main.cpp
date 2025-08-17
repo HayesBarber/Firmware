@@ -143,6 +143,7 @@ void initDisplayData() {
   emptyTheme.displayName = "No Themes";
   emptyTheme.applyUrl = "/invalid";
   emptyTheme.colorsVector = {};
+  themes.push_back(emptyTheme);
 }
 
 void setup() {
