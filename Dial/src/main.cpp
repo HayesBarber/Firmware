@@ -208,6 +208,14 @@ void displayIdle() {
   int totalDisplayItems = 1 + (displayData.extras.size());
   int newDisplayIndex = (1 + displayData.index) % totalDisplayItems;
   displayData.index = newDisplayIndex;
+
+  String data = displayData.index == 0
+                    ? displayData.time
+                    : displayData.extras[displayData.index - 1];
+
+  screen.clearThird(UPPER_THIRD);
+  screen.clearThird(LOWER_THIRD);
+  screen.writeText(data, MIDDLE_THIRD, XL);
 }
 
 void setup() {
