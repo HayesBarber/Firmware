@@ -216,6 +216,38 @@ void displayIdle() {
   screen.writeText(data, MIDDLE_THIRD, XL);
 }
 
+UIState transition(UIState current, InputEvent e) {
+  switch (current) {
+  case UIState::Idle:
+    if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
+        e == InputEvent::ButtonPress) {
+      return UIState::ShowingDevices;
+    }
+    return current;
+
+  case UIState::ShowingDevices:
+    if (e == InputEvent::ButtonPress) {
+      return UIState::ShowingThemes;
+    }
+    if (e == InputEvent::ScreenTouch) {
+      // toggle device
+      return current;
+    }
+    return current;
+
+  case UIState::ShowingThemes:
+    if (e == InputEvent::ButtonPress) {
+      return UIState::ShowingDevices;
+    }
+    if (e == InputEvent::ScreenTouch) {
+      // apply theme
+      return current;
+    }
+    return current;
+  }
+  return current; // fallback
+}
+
 void setup() {
   Serial.begin(115200);
   while (!Serial)
