@@ -134,7 +134,12 @@ void onButtonPressed(int pin) {
   }
 }
 
-void onScreenTouch() { activityDetected(); }
+void onScreenTouch() {
+  activityDetected();
+  if (displayData.isIdle) {
+    rotate(0);
+  }
+}
 
 void initDisplayData() {
   displayData.isIdle = true;
