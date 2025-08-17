@@ -6,6 +6,7 @@
 #include <GFXDriver.h>
 #include <RestBeacon.h>
 #include <RotaryEvents.h>
+#include <TimeKeeper.h>
 #include <TinyFetch.h>
 #include <vector>
 
@@ -16,6 +17,7 @@ const uint8_t ENCODER_DT = 10;
 const uint8_t BUTTON_PIN = 14;
 const unsigned long IDLE_THRESHOLD_MS = 20000;
 
+TimeKeeper timeKeeper;
 AutoWiFi wifi;
 GFXDriver screen;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
