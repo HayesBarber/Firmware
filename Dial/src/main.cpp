@@ -23,6 +23,24 @@ Button button;
 std::vector<Device> devices;
 std::vector<Theme> themes;
 DisplayData displayData;
+unsigned long lastActivityDetected = 0;
+bool displayIsOn = true;
+
+void activityDetected() {
+  markDisplayAsOn();
+  lastActivityDetected = millis();
+}
+
+void markDisplayAsOn() { displayIsOn = true; }
+
+void turnDisplayOff() {
+  if (!displayIsOn) {
+    return;
+  }
+
+  screen.off();
+  displayIsOn = false;
+}
 
 void udpTask(void *pvParameters) {
   while (1) {
