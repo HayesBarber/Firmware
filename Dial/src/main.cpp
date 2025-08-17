@@ -123,7 +123,16 @@ void displayDeviceOrTheme() {
   }
 }
 
-void onButtonPressed(int pin) { activityDetected(); }
+void onButtonPressed(int pin) {
+  activityDetected();
+  if (displayData.isIdle) {
+    rotate(0);
+  } else {
+    rotationIndex = 0;
+    displayData.isShowingThemes = !displayData.isShowingThemes;
+    rotate(0);
+  }
+}
 
 void onScreenTouch() { activityDetected(); }
 
