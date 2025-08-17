@@ -202,6 +202,12 @@ void displayIdle() {
     turnDisplayOff();
     return;
   }
+
+  markDisplayAsOn();
+
+  int totalDisplayItems = 1 + (displayData.extras.size());
+  int newDisplayIndex = (1 + displayData.index) % totalDisplayItems;
+  displayData.index = newDisplayIndex;
 }
 
 void setup() {
