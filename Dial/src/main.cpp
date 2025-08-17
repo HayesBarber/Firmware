@@ -171,12 +171,22 @@ AppState transition(const AppState &state, const InputEvent e) {
     if (e == InputEvent::LeftTurn) {
       int size = next.themes.size();
       next.rotationIndex = (next.rotationIndex - 1 + size) % size;
+      Theme current = next.themes[next.rotationIndex];
+      screen.drawColors(current.colorsVector, UPPER_THIRD);
+      screen.writeText(current.displayName, MIDDLE_THIRD);
     } else if (e == InputEvent::RightTurn) {
       int size = next.themes.size();
       next.rotationIndex = (next.rotationIndex + 1) % size;
+      Theme current = next.themes[next.rotationIndex];
+      screen.drawColors(current.colorsVector, UPPER_THIRD);
+      screen.writeText(current.displayName, MIDDLE_THIRD);
     } else if (e == InputEvent::ButtonPress) {
       next.rotationIndex = 0;
       next.uiState = UIState::ShowingDevices;
+      Device current = next.devices[next.rotationIndex];
+      screen.clearThird(UPPER_THIRD);
+      screen.writeText(current.displayName, MIDDLE_THIRD);
+      screen.drawPowerSymbol(LOWER_THIRD);
     } else if (e == InputEvent::ScreenTouch) {
       applyTheme(next.themes[next.rotationIndex]);
     } else if (e == InputEvent::IdleDetected) {
