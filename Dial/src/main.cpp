@@ -1,4 +1,5 @@
 #include "env.h"
+#include "models.h"
 #include <Arduino.h>
 #include <AutoWiFi.h>
 #include <ButtonHandler.h>
