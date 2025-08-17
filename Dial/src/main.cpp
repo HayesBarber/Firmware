@@ -23,7 +23,19 @@ GFXDriver screen;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
 TinyFetch client;
 Button button;
-AppState appState;
+AppState appState = makeInitialAppState();
+
+AppState makeInitialAppState() {
+  AppState s;
+  s.lastActivityDetected = millis();
+  s.rotationIndex = 0;
+  s.uiState = UIState::Idle;
+  s.idleData.index = 0;
+  s.idleData.time = timeKeeper.getTime12Hour();
+  s.devices = {Device{"No Devices", ""}};
+  s.themes = {Theme{"No Themes", "", {}}};
+  return s;
+}
 
 void udpTask(void *pvParameters) {
   while (1) {
@@ -242,6 +254,8 @@ void setup() {
                                    onRightTurn, 2);
 
   button.init(BUTTON_PIN, onButtonPressed);
+
+  rotateIdleDisplay();
 
   xTaskCreatePinnedToCore(udpTask, "UdpTask", 4096, nullptr, 2, nullptr, 1);
 }
