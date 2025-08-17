@@ -249,6 +249,8 @@ void setup() {
     return;
   }
 
+  client.init();
+
   screen.init(onScreenTouch);
 
   beacon.onMessage(onMessage);
