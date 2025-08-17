@@ -49,8 +49,6 @@ void udpTask(void *pvParameters) {
   }
 }
 
-void onScreenTouch() {}
-
 String onMessage(const Message &msg) {
   String action = msg.getProperty("action");
   String reply = "Unknown action";
@@ -89,11 +87,13 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
-void onLeftTurn() {}
+void onLeftTurn() { activityDetected(); }
 
-void onRightTurn() {}
+void onRightTurn() { activityDetected(); }
 
-void onButtonPressed(int pin) {}
+void onButtonPressed(int pin) { activityDetected(); }
+
+void onScreenTouch() { activityDetected(); }
 
 void setup() {
   Serial.begin(115200);
