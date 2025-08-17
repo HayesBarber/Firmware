@@ -148,7 +148,18 @@ AppState transition(const AppState &state, const InputEvent e) {
       int newIndex = (1 + state.idleData.index) % totalIdleItems;
       next.idleData.index = newIndex;
       next.idleData.time = timeKeeper.getTime12Hour();
-      next.isNight = TimeKeeper::isNight(next.idleData.time);
+      bool isNight = TimeKeeper::isNight(next.idleData.time);
+      if (isNight) {
+        screen.off();
+      } else {
+        String data = next.idleData.index == 0
+                          ? next.idleData.time
+                          : next.idleData.extras[next.idleData.index - 1];
+
+        screen.clearThird(UPPER_THIRD);
+        screen.clearThird(LOWER_THIRD);
+        screen.writeText(data, MIDDLE_THIRD, XL);
+      }
     }
     break;
 
