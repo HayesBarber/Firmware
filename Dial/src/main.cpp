@@ -127,6 +127,24 @@ void onButtonPressed(int pin) { activityDetected(); }
 
 void onScreenTouch() { activityDetected(); }
 
+void initDisplayData() {
+  displayData.isIdle = true;
+  displayData.isShowingThemes = false;
+  displayData.index = 0;
+  displayData.time = "? PM";
+  displayData.extras = {};
+
+  Device emptyDevice;
+  emptyDevice.displayName = "No Devices";
+  emptyDevice.toggleUrl = "/invalid";
+  devices.push_back(emptyDevice);
+
+  Theme emptyTheme;
+  emptyTheme.displayName = "No Themes";
+  emptyTheme.applyUrl = "/invalid";
+  emptyTheme.colorsVector = {};
+}
+
 void setup() {
   Serial.begin(115200);
   while (!Serial)
@@ -140,7 +158,7 @@ void setup() {
     return;
   }
 
-  displayData.isIdle = true;
+  initDisplayData();
 
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
