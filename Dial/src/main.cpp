@@ -165,7 +165,6 @@ AppState transition(const AppState &state, InputEvent e) {
       next.idleData.time = timeKeeper.getTime12Hour();
       next.isNight = TimeKeeper::isNight(next.idleData.time);
     }
-
     break;
 
   case UIState::ShowingDevices:
