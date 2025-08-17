@@ -14,10 +14,28 @@ struct Device {
   String toggleUrl;
 };
 
-struct DisplayData {
-  bool isIdle;
-  bool isShowingThemes;
+struct IdleData {
   int index;
   String time;
   std::vector<String> extras;
+};
+
+struct AppState {
+  std::vector<Device> devices;
+  std::vector<Theme> themes;
+  IdleData idleData;
+  unsigned long lastActivityDetected;
+  int rotationIndex;
+  UIState uiState;
+};
+
+enum class UIState { Idle, ShowingDevices, ShowingThemes };
+
+enum class InputEvent {
+  LeftTurn,
+  RightTurn,
+  ButtonPress,
+  ScreenTouch,
+  IdleDetected,
+  RotateIdleData
 };
