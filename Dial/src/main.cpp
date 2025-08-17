@@ -7,6 +7,7 @@
 #include <RestBeacon.h>
 #include <RotaryEvents.h>
 #include <TinyFetch.h>
+#include <vector>
 
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
@@ -19,6 +20,9 @@ GFXDriver screen;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
 TinyFetch client;
 Button button;
+std::vector<Device> devices;
+std::vector<Theme> themes;
+DisplayData displayData;
 
 void udpTask(void *pvParameters) {
   while (1) {
