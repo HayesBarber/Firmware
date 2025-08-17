@@ -153,7 +153,12 @@ AppState transition(const AppState &state, InputEvent e) {
       next.lastActivityDetected = millis();
     } else if (e == InputEvent::IdleDetected) {
       next.lastActivityDetected = millis();
+    } else if (e == InputEvent::RotateIdleData) {
+      int totalIdleItems = 1 + (state.idleData.extras.size());
+      int newIndex = (1 + state.idleData.index) % totalIdleItems;
+      next.idleData.index = newIndex;
     }
+
     break;
 
   case UIState::ShowingDevices:
