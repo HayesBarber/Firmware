@@ -235,8 +235,8 @@ AppState transition(const AppState &state, const InputEvent e) {
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial)
-    ;
+
+  delay(1000);
 
   screen.init(onScreenTouch);
 
