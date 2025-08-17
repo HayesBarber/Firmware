@@ -14,6 +14,7 @@ const uint16_t UDP_PORT = 4210;
 const uint8_t ENCODER_CLK = 13;
 const uint8_t ENCODER_DT = 10;
 const uint8_t BUTTON_PIN = 14;
+const unsigned long IDLE_THRESHOLD_MS = 20000;
 
 AutoWiFi wifi;
 GFXDriver screen;
@@ -176,6 +177,20 @@ void initDisplayData() {
   themes.push_back(emptyTheme);
 }
 
+void checkIfIdle() {
+  unsigned long currentMillis = millis();
+  bool isIdle = currentMillis - lastActivityDetected >= IDLE_THRESHOLD_MS;
+
+  if (displayData.isIdle || isIdle) {
+    displayData.isIdle = true;
+    displayData.isShowingThemes = false;
+    rotationIndex = 0;
+    displayIdle();
+  }
+}
+
+void displayIdle() {}
+
 void setup() {
   Serial.begin(115200);
   while (!Serial)
@@ -211,4 +226,5 @@ void loop() {
   screen.loop();
   beacon.loopHttp();
   button.update();
+  checkIfIdle();
 }
