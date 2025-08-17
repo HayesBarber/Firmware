@@ -151,7 +151,7 @@ AppState transition(const AppState &state, InputEvent e) {
       next.uiState = UIState::ShowingDevices;
       next.rotationIndex = 0;
       next.lastActivityDetected = millis();
-    } else if (e == InputEvent::IdleDetected) {
+    } else if (e == InputEvent::ScreenTouch) {
       next.lastActivityDetected = millis();
     } else if (e == InputEvent::RotateIdleData) {
       int totalIdleItems = 1 + (state.idleData.extras.size());
