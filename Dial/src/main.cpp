@@ -98,12 +98,12 @@ void rotate(int increment) {
     displayData.isIdle = false;
     rotationIndex = 0;
   } else {
-    int newDeviceIndex = rotationIndex + increment;
+    int newIndex = rotationIndex + increment;
     int size = devices.size();
     if (displayData.isShowingThemes) {
       size = themes.size();
     }
-    rotationIndex = (newDeviceIndex + size) % size;
+    rotationIndex = (newIndex + size) % size;
   }
 
   displayDeviceOrTheme();
