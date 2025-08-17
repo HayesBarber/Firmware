@@ -162,6 +162,8 @@ AppState transition(const AppState &state, InputEvent e) {
       int totalIdleItems = 1 + (state.idleData.extras.size());
       int newIndex = (1 + state.idleData.index) % totalIdleItems;
       next.idleData.index = newIndex;
+      next.idleData.time = timeKeeper.getTime12Hour();
+      next.isNight = TimeKeeper::isNight(next.idleData.time);
     }
 
     break;
