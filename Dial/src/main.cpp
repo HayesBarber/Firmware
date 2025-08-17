@@ -70,13 +70,13 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
-void onLeftTurn() {}
+void onLeftTurn() { handleEvent(InputEvent::LeftTurn); }
 
-void onRightTurn() {}
+void onRightTurn() { handleEvent(InputEvent::RightTurn); }
 
-void onButtonPressed(int pin) {}
+void onButtonPressed(int pin) { handleEvent(InputEvent::ButtonPress); }
 
-void onScreenTouch() {}
+void onScreenTouch() { handleEvent(InputEvent::ScreenTouch); }
 
 void applyTheme(Theme &theme) {
   String colors = theme.colors;
