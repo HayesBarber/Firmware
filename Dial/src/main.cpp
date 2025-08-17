@@ -238,16 +238,18 @@ void setup() {
 
   delay(1000);
 
-  screen.init(onScreenTouch);
-
   AutoWiFi::State state = wifi.connect();
   if (state == AutoWiFi::State::AP_MODE) {
+    screen.init([]() {});
     screen.writeText("AP Mode", XL);
     return;
   } else if (state == AutoWiFi::State::NOT_CONNECTED) {
+    screen.init([]() {});
     screen.writeText("No WiFi", XL);
     return;
   }
+
+  screen.init(onScreenTouch);
 
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
