@@ -95,8 +95,6 @@ bool isIdle(const unsigned long lastActivityDetected) {
   return isIdle;
 }
 
-void displayIdle() {}
-
 AppState handleEvent(InputEvent e) {
   AppState newState = transition(appState, e);
 
@@ -124,6 +122,8 @@ AppState transition(const AppState &state, InputEvent e) {
         e == InputEvent::ButtonPress) {
       next.uiState = UIState::ShowingDevices;
       next.rotationIndex = 0;
+      next.lastActivityDetected = millis();
+    } else if (e == InputEvent::IdleDetected) {
       next.lastActivityDetected = millis();
     }
     break;
