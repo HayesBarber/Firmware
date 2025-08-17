@@ -28,7 +28,18 @@ void udpTask(void *pvParameters) {
 
 void onScreenTouch() {}
 
-String onMessage(const Message &msg) { return ""; }
+String onMessage(const Message &msg) {
+  String action = msg.getProperty("action");
+  String reply = "Unknown action";
+
+  if (action == "uptime") {
+    reply = String(millis());
+  } else if (action == "version") {
+    reply = VERSION;
+  }
+
+  return reply;
+}
 
 void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   if (message != DISCOVERY_PASSCODE) {
