@@ -137,9 +137,12 @@ AppState transition(const AppState &state, const InputEvent e) {
   switch (state.uiState) {
   case UIState::Idle:
     if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
-        e == InputEvent::ButtonPress) {
+        e == InputEvent::ButtonPress || e == InputEvent::ScreenTouch) {
       next.uiState = UIState::ShowingDevices;
       next.rotationIndex = 0;
+      Device current = next.devices[next.rotationIndex];
+      screen.writeText(current.displayName, MIDDLE_THIRD);
+      screen.drawPowerSymbol(LOWER_THIRD);
     } else if (e == InputEvent::RotateIdleData) {
       int totalIdleItems = 1 + (state.idleData.extras.size());
       int newIndex = (1 + state.idleData.index) % totalIdleItems;
