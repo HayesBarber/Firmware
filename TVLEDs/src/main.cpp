@@ -95,6 +95,8 @@ void setup() {
 
   stripDriver.init<DATA_PIN>(NUM_PIXELS, BRIGHTNESS);
 
+  client.init();
+
   beacon.onMessage(onMessage);
   beacon.onDiscovery(onDiscovery);
   beacon.begin();
