@@ -1,10 +1,10 @@
+#include "env.h"
 #include <Arduino.h>
 #include <AutoWiFi.h>
 #include <LEDStripDriver.h>
-#include <RestBeacon.h>
 #include <Message.h>
+#include <RestBeacon.h>
 #include <TinyFetch.h>
-#include "env.h"
 
 const uint16_t NUM_PIXELS = 200;
 const uint8_t BRIGHTNESS = 42;
@@ -17,14 +17,14 @@ LEDStripDriver stripDriver;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
 TinyFetch client;
 
-void udpTask(void* pvParameters) {
+void udpTask(void *pvParameters) {
   while (1) {
     beacon.loopUdp();
     vTaskDelay(pdMS_TO_TICKS(50));
   }
 }
 
-String onMessage(const Message& msg) {
+String onMessage(const Message &msg) {
   String action = msg.getProperty("action");
   String reply = "Unknown action";
 
@@ -52,12 +52,14 @@ String onMessage(const Message& msg) {
   return reply;
 }
 
-void onDiscovery(IPAddress sender, uint16_t port, const String& message) {
+void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   if (message != DISCOVERY_PASSCODE) {
-    Serial.println("Received discovery message but it did not match the passcode");
+    Serial.println(
+        "Received discovery message but it did not match the passcode");
     return;
   }
-  Serial.println("Received discovery message from: " + sender.toString() + ":" + String(port));
+  Serial.println("Received discovery message from: " + sender.toString() + ":" +
+                 String(port));
   String baseUrl = "http://" + sender.toString() + ":" + String(port);
   client.setBaseUrl(baseUrl);
   Serial.println("Set base URL to: " + baseUrl);
@@ -77,11 +79,15 @@ void onDiscovery(IPAddress sender, uint16_t port, const String& message) {
 
 void setup() {
   Serial.begin(115200);
-  while(!Serial);
+  while (!Serial)
+    ;
 
   AutoWiFi::State state = wifi.connect();
-  
-  if (state == AutoWiFi::State::AP_MODE) return;
+
+  if (state == AutoWiFi::State::AP_MODE ||
+      state == AutoWiFi::State::NOT_CONNECTED) {
+    return;
+  }
 
   stripDriver.init<DATA_PIN>(NUM_PIXELS, BRIGHTNESS);
 
@@ -89,20 +95,15 @@ void setup() {
   beacon.onDiscovery(onDiscovery);
   beacon.begin();
 
-  xTaskCreatePinnedToCore(
-    udpTask,
-    "UdpTask",
-    4096,
-    nullptr,
-    2,
-    nullptr,
-    1
-  );
+  xTaskCreatePinnedToCore(udpTask, "UdpTask", 4096, nullptr, 2, nullptr, 1);
 }
 
 void loop() {
   wifi.loop();
-  if (wifi.getState() == AutoWiFi::State::AP_MODE) return;
+  if (wifi.getState() == AutoWiFi::State::AP_MODE) {
+    return;
+  }
+
   beacon.loopHttp();
   stripDriver.loop();
 }
