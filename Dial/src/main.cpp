@@ -185,8 +185,7 @@ AppState transition(const AppState &state, const InputEvent e) {
       toggleDevice(next.devices[next.rotationIndex]);
     } else if (e == InputEvent::IdleDetected) {
       next.uiState = UIState::Idle;
-      next.idleData.time = timeKeeper.getTime12Hour();
-      screen.clearThird(LOWER_THIRD);
+      next = transition(next, InputEvent::RotateIdleData);
     }
     break;
 
@@ -214,9 +213,7 @@ AppState transition(const AppState &state, const InputEvent e) {
       applyTheme(next.themes[next.rotationIndex]);
     } else if (e == InputEvent::IdleDetected) {
       next.uiState = UIState::Idle;
-      next.idleData.time = timeKeeper.getTime12Hour();
-      screen.clearThird(LOWER_THIRD);
-      screen.clearThird(UPPER_THIRD);
+      next = transition(next, InputEvent::RotateIdleData);
     }
     break;
   }
