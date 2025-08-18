@@ -88,8 +88,7 @@ void setup() {
 
   AutoWiFi::State state = wifi.connect();
 
-  if (state == AutoWiFi::State::AP_MODE ||
-      state == AutoWiFi::State::NOT_CONNECTED) {
+  if (state == AutoWiFi::State::AP_MODE) {
     return;
   }
 
