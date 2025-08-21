@@ -70,7 +70,14 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   String jsonMessage = req.toJson();
   Serial.println("Sending check-in message: " + jsonMessage);
   HttpResponse response = client.post("/discovery/check-in", jsonMessage);
+
+  Message rsp;
+  bool valid = Message::fromJson(response.payload, rsp);
   Serial.printf("Check-in response code: %d\n", response.statusCode);
+  if (!valid) {
+    Serial.println("JSON response from check in was not valid");
+    return;
+  }
 }
 
 void applyTheme(const Theme &theme) {
