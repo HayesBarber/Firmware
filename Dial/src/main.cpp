@@ -10,6 +10,8 @@
 #include <TinyFetch.h>
 #include <vector>
 
+#define Serial USBSerial
+
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
 const uint8_t ENCODER_CLK = 13;
@@ -23,19 +25,7 @@ GFXDriver screen;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
 TinyFetch client;
 Button button;
-AppState appState = makeInitialAppState();
-
-AppState makeInitialAppState() {
-  AppState s;
-  s.lastActivityDetected = millis();
-  s.rotationIndex = 0;
-  s.uiState = UIState::Idle;
-  s.idleData.index = 0;
-  s.idleData.time = timeKeeper.getTime12Hour();
-  s.devices = {Device{"No Devices", ""}};
-  s.themes = {Theme{"No Themes", "", {}}};
-  return s;
-}
+AppState appState = AppState::makeInitialAppState();
 
 void udpTask(void *pvParameters) {
   while (1) {
@@ -70,36 +60,27 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   client.setBaseUrl(baseUrl);
   Serial.println("Set base URL to: " + baseUrl);
 
-  Message msg;
-  msg.addProperty("name", "Dial");
-  msg.addProperty("ip", wifi.getIP().toString());
-  msg.addProperty("mac", wifi.getMac());
-  msg.addProperty("type", "interface");
+  Message req;
+  req.addProperty("name", "Dial");
+  req.addProperty("ip", wifi.getIP().toString());
+  req.addProperty("mac", wifi.getMac());
+  req.addProperty("type", "interface");
+  req.addProperty("return_response", "true");
 
-  String jsonMessage = msg.toJson();
+  String jsonMessage = req.toJson();
   Serial.println("Sending check-in message: " + jsonMessage);
   HttpResponse response = client.post("/discovery/check-in", jsonMessage);
+
+  Message rsp;
+  bool valid = Message::fromJson(response.payload, rsp);
   Serial.printf("Check-in response code: %d\n", response.statusCode);
-}
+  if (!valid) {
+    Serial.println("JSON response from check in was not valid");
+    return;
+  }
 
-void onLeftTurn() { appState = transition(appState, InputEvent::LeftTurn); }
-
-void onRightTurn() { appState = transition(appState, InputEvent::RightTurn); }
-
-void onButtonPressed(int pin) {
-  appState = transition(appState, InputEvent::ButtonPress);
-}
-
-void onScreenTouch() {
-  appState = transition(appState, InputEvent::ScreenTouch);
-}
-
-void onIdleDetected() {
-  appState = transition(appState, InputEvent::IdleDetected);
-}
-
-void rotateIdleDisplay() {
-  appState = transition(appState, InputEvent::RotateIdleData);
+  appState = AppState::fromCheckinResponse(rsp, appState, screen);
+  timeKeeper.setEpochSeconds(rsp.getProperty("epoch_time_seconds"));
 }
 
 void applyTheme(const Theme &theme) {
@@ -122,17 +103,17 @@ bool shouldEnterIdle(const unsigned long lastActivityDetected,
   return isIdle;
 }
 
+bool timeHasChanged(const String currentTime) {
+  String newTime = timeKeeper.getTime12Hour();
+  return newTime == currentTime;
+}
+
 bool shouldRotateIdleData(const UIState uiState, const String currentTime) {
   if (uiState != UIState::Idle) {
     return false;
   }
 
   return timeHasChanged(currentTime);
-}
-
-bool timeHasChanged(const String currentTime) {
-  String newTime = timeKeeper.getTime12Hour();
-  return newTime == currentTime;
 }
 
 AppState transition(const AppState &state, const InputEvent e) {
@@ -233,6 +214,26 @@ AppState transition(const AppState &state, const InputEvent e) {
   return next;
 }
 
+void onLeftTurn() { appState = transition(appState, InputEvent::LeftTurn); }
+
+void onRightTurn() { appState = transition(appState, InputEvent::RightTurn); }
+
+void onButtonPressed(int pin) {
+  appState = transition(appState, InputEvent::ButtonPress);
+}
+
+void onScreenTouch() {
+  appState = transition(appState, InputEvent::ScreenTouch);
+}
+
+void onIdleDetected() {
+  appState = transition(appState, InputEvent::IdleDetected);
+}
+
+void rotateIdleDisplay() {
+  appState = transition(appState, InputEvent::RotateIdleData);
+}
+
 void setup() {
   Serial.begin(115200);
 
@@ -242,10 +243,6 @@ void setup() {
   if (state == AutoWiFi::State::AP_MODE) {
     screen.init([]() {});
     screen.writeText("AP Mode", XL);
-    return;
-  } else if (state == AutoWiFi::State::NOT_CONNECTED) {
-    screen.init([]() {});
-    screen.writeText("No WiFi", XL);
     return;
   }
 
