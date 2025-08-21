@@ -114,7 +114,6 @@ struct AppState {
     }
 
     newState.idleData.index = 0;
-    newState.idleData.time = msg.getProperty("epoch_time_seconds");
     newState.idleData.extras = extras;
 
     return newState;
