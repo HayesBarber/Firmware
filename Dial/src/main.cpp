@@ -10,6 +10,8 @@
 #include <TinyFetch.h>
 #include <vector>
 
+#define Serial USBSerial
+
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
 const uint8_t ENCODER_CLK = 13;
@@ -70,13 +72,14 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   client.setBaseUrl(baseUrl);
   Serial.println("Set base URL to: " + baseUrl);
 
-  Message msg;
-  msg.addProperty("name", "Dial");
-  msg.addProperty("ip", wifi.getIP().toString());
-  msg.addProperty("mac", wifi.getMac());
-  msg.addProperty("type", "interface");
+  Message req;
+  req.addProperty("name", "Dial");
+  req.addProperty("ip", wifi.getIP().toString());
+  req.addProperty("mac", wifi.getMac());
+  req.addProperty("type", "interface");
+  req.addProperty("return_response", "true");
 
-  String jsonMessage = msg.toJson();
+  String jsonMessage = req.toJson();
   Serial.println("Sending check-in message: " + jsonMessage);
   HttpResponse response = client.post("/discovery/check-in", jsonMessage);
   Serial.printf("Check-in response code: %d\n", response.statusCode);
@@ -242,10 +245,6 @@ void setup() {
   if (state == AutoWiFi::State::AP_MODE) {
     screen.init([]() {});
     screen.writeText("AP Mode", XL);
-    return;
-  } else if (state == AutoWiFi::State::NOT_CONNECTED) {
-    screen.init([]() {});
-    screen.writeText("No WiFi", XL);
     return;
   }
 
