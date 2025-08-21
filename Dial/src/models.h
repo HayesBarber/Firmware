@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <Message.h>
 #include <vector>
 
 struct Theme {
@@ -60,5 +61,13 @@ struct AppState {
     s.devices = {Device{"No Devices", ""}};
     s.themes = {Theme{"No Themes", "", {}}};
     return s;
+  }
+
+  static AppState fromCheckinResponse(Message msg) {
+    auto device_names = msg.getArrayProperty("device_names");
+    auto theme_name = msg.getArrayProperty("theme_names");
+    auto theme_color_strings = msg.getArrayProperty("theme_colors");
+    auto extras = msg.getArrayProperty("extras");
+    auto epochSecondsString = msg.getProperty("epoch_time_seconds");
   }
 };
