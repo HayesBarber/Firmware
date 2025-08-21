@@ -66,9 +66,38 @@ struct AppState {
   static AppState fromCheckinResponse(const Message &msg,
                                       const AppState &currState) {
     auto device_names = msg.getArrayProperty("device_names");
-    auto theme_name = msg.getArrayProperty("theme_names");
+    auto theme_names = msg.getArrayProperty("theme_names");
     auto theme_color_strings = msg.getArrayProperty("theme_colors");
     auto extras = msg.getArrayProperty("extras");
     auto epochSecondsString = msg.getProperty("epoch_time_seconds");
+
+    AppState newState = currState;
+
+    newState.devices.clear();
+    for (const auto &name : device_names) {
+      newState.devices.push_back(Device::parseDevice(name));
+    }
+    if (newState.devices.empty()) {
+      newState.devices.push_back(Device{"No Devices", ""});
+    }
+
+    newState.themes.clear();
+    for (size_t i = 0; i < theme_names.size(); i++) {
+      bool hasCompliment = i < theme_color_strings.size();
+      if (!hasCompliment) {
+        continue;
+      }
+      String colors = theme_color_strings[i];
+      newState.themes.push_back(Theme::parseTheme(theme_names[i], colors));
+    }
+    if (newState.themes.empty()) {
+      newState.themes.push_back(Theme{"No Themes", "", {}});
+    }
+
+    newState.idleData.index = 0;
+    newState.idleData.time = msg.getProperty("epoch_time_seconds");
+    newState.idleData.extras = extras;
+
+    return newState;
   }
 };

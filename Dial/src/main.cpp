@@ -80,6 +80,7 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   }
 
   appState = AppState::fromCheckinResponse(rsp, appState);
+  // todo update timekeeper
 }
 
 void applyTheme(const Theme &theme) {
