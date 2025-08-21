@@ -78,6 +78,8 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
     Serial.println("JSON response from check in was not valid");
     return;
   }
+
+  appState = AppState::fromCheckinResponse(rsp, appState);
 }
 
 void applyTheme(const Theme &theme) {

@@ -63,7 +63,8 @@ struct AppState {
     return s;
   }
 
-  static AppState fromCheckinResponse(Message msg) {
+  static AppState fromCheckinResponse(const Message &msg,
+                                      const AppState &currState) {
     auto device_names = msg.getArrayProperty("device_names");
     auto theme_name = msg.getArrayProperty("theme_names");
     auto theme_color_strings = msg.getArrayProperty("theme_colors");
