@@ -13,6 +13,7 @@ struct Theme {
     Theme t;
     t.displayName = name;
     t.colors = colors;
+    // todo set colors vector
     return t;
   }
 };
