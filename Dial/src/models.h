@@ -20,6 +20,17 @@ struct IdleData {
   std::vector<String> extras;
 };
 
+enum class UIState { Idle, ShowingDevices, ShowingThemes };
+
+enum class InputEvent {
+  LeftTurn,
+  RightTurn,
+  ButtonPress,
+  ScreenTouch,
+  IdleDetected,
+  RotateIdleData
+};
+
 struct AppState {
   std::vector<Device> devices;
   std::vector<Theme> themes;
@@ -34,20 +45,9 @@ struct AppState {
     s.rotationIndex = 0;
     s.uiState = UIState::Idle;
     s.idleData.index = 0;
-    s.idleData.time = timeKeeper.getTime12Hour();
+    s.idleData.time = "? PM";
     s.devices = {Device{"No Devices", ""}};
     s.themes = {Theme{"No Themes", "", {}}};
     return s;
   }
-};
-
-enum class UIState { Idle, ShowingDevices, ShowingThemes };
-
-enum class InputEvent {
-  LeftTurn,
-  RightTurn,
-  ButtonPress,
-  ScreenTouch,
-  IdleDetected,
-  RotateIdleData
 };
