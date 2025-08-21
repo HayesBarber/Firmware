@@ -12,6 +12,10 @@ struct Theme {
 struct Device {
   String displayName;
   String toggleUrl;
+
+  static Device fromName(String name) {
+    return Device{name, "/lighting/" + name + "/toggle"};
+  }
 };
 
 struct IdleData {
