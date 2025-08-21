@@ -7,13 +7,20 @@ struct Theme {
   String displayName;
   String colors;
   std::vector<uint16_t> colorsVector;
+
+  static Theme parseTheme(const String name, const String colors) {
+    Theme t;
+    t.displayName = name;
+    t.colors = colors;
+    return t;
+  }
 };
 
 struct Device {
   String displayName;
   String toggleUrl;
 
-  static Device fromName(String name) {
+  static Device parseDevice(const String name) {
     return Device{name, "/lighting/" + name + "/toggle"};
   }
 };
