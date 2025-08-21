@@ -27,6 +27,18 @@ struct AppState {
   unsigned long lastActivityDetected;
   int rotationIndex;
   UIState uiState;
+
+  static AppState makeInitialAppState() {
+    AppState s;
+    s.lastActivityDetected = millis();
+    s.rotationIndex = 0;
+    s.uiState = UIState::Idle;
+    s.idleData.index = 0;
+    s.idleData.time = timeKeeper.getTime12Hour();
+    s.devices = {Device{"No Devices", ""}};
+    s.themes = {Theme{"No Themes", "", {}}};
+    return s;
+  }
 };
 
 enum class UIState { Idle, ShowingDevices, ShowingThemes };

@@ -25,19 +25,7 @@ GFXDriver screen;
 RestBeacon beacon(HTTP_PORT, UDP_PORT);
 TinyFetch client;
 Button button;
-AppState appState = makeInitialAppState();
-
-AppState makeInitialAppState() {
-  AppState s;
-  s.lastActivityDetected = millis();
-  s.rotationIndex = 0;
-  s.uiState = UIState::Idle;
-  s.idleData.index = 0;
-  s.idleData.time = timeKeeper.getTime12Hour();
-  s.devices = {Device{"No Devices", ""}};
-  s.themes = {Theme{"No Themes", "", {}}};
-  return s;
-}
+AppState appState = AppState::makeInitialAppState();
 
 void udpTask(void *pvParameters) {
   while (1) {
@@ -83,26 +71,6 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.println("Sending check-in message: " + jsonMessage);
   HttpResponse response = client.post("/discovery/check-in", jsonMessage);
   Serial.printf("Check-in response code: %d\n", response.statusCode);
-}
-
-void onLeftTurn() { appState = transition(appState, InputEvent::LeftTurn); }
-
-void onRightTurn() { appState = transition(appState, InputEvent::RightTurn); }
-
-void onButtonPressed(int pin) {
-  appState = transition(appState, InputEvent::ButtonPress);
-}
-
-void onScreenTouch() {
-  appState = transition(appState, InputEvent::ScreenTouch);
-}
-
-void onIdleDetected() {
-  appState = transition(appState, InputEvent::IdleDetected);
-}
-
-void rotateIdleDisplay() {
-  appState = transition(appState, InputEvent::RotateIdleData);
 }
 
 void applyTheme(const Theme &theme) {
@@ -234,6 +202,26 @@ AppState transition(const AppState &state, const InputEvent e) {
   }
 
   return next;
+}
+
+void onLeftTurn() { appState = transition(appState, InputEvent::LeftTurn); }
+
+void onRightTurn() { appState = transition(appState, InputEvent::RightTurn); }
+
+void onButtonPressed(int pin) {
+  appState = transition(appState, InputEvent::ButtonPress);
+}
+
+void onScreenTouch() {
+  appState = transition(appState, InputEvent::ScreenTouch);
+}
+
+void onIdleDetected() {
+  appState = transition(appState, InputEvent::IdleDetected);
+}
+
+void rotateIdleDisplay() {
+  appState = transition(appState, InputEvent::RotateIdleData);
 }
 
 void setup() {
