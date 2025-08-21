@@ -93,17 +93,17 @@ bool shouldEnterIdle(const unsigned long lastActivityDetected,
   return isIdle;
 }
 
+bool timeHasChanged(const String currentTime) {
+  String newTime = timeKeeper.getTime12Hour();
+  return newTime == currentTime;
+}
+
 bool shouldRotateIdleData(const UIState uiState, const String currentTime) {
   if (uiState != UIState::Idle) {
     return false;
   }
 
   return timeHasChanged(currentTime);
-}
-
-bool timeHasChanged(const String currentTime) {
-  String newTime = timeKeeper.getTime12Hour();
-  return newTime == currentTime;
 }
 
 AppState transition(const AppState &state, const InputEvent e) {
