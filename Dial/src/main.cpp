@@ -79,7 +79,7 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
     return;
   }
 
-  appState = AppState::fromCheckinResponse(rsp, appState);
+  appState = AppState::fromCheckinResponse(rsp, appState, screen);
   timeKeeper.setEpochSeconds(rsp.getProperty("epoch_time_seconds"));
 }
 

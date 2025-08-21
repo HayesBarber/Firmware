@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <GFXDriver.h>
 #include <Message.h>
 #include <vector>
 
@@ -9,11 +10,27 @@ struct Theme {
   String colors;
   std::vector<uint16_t> colorsVector;
 
-  static Theme parseTheme(const String name, const String colors) {
+  static Theme parseTheme(const String name, const String colors,
+                          GFXDriver &screen) {
     Theme t;
     t.displayName = name;
     t.colors = colors;
-    // todo set colors vector
+    std::vector<uint16_t> parsedColors;
+    int start = 0;
+    int commaIndex;
+    while ((commaIndex = colors.indexOf(',', start)) != -1) {
+      String token = colors.substring(start, commaIndex);
+      if (token.length() > 0) {
+        parsedColors.push_back(screen.hexToColor(token));
+      }
+      start = commaIndex + 1;
+    }
+    String token = colors.substring(start);
+    if (token.length() > 0) {
+      parsedColors.push_back(screen.hexToColor(token));
+    }
+
+    t.colorsVector = parsedColors;
     return t;
   }
 };
@@ -65,7 +82,8 @@ struct AppState {
   }
 
   static AppState fromCheckinResponse(const Message &msg,
-                                      const AppState &currState) {
+                                      const AppState &currState,
+                                      GFXDriver &screen) {
     auto device_names = msg.getArrayProperty("device_names");
     auto theme_names = msg.getArrayProperty("theme_names");
     auto theme_color_strings = msg.getArrayProperty("theme_colors");
@@ -88,7 +106,8 @@ struct AppState {
         continue;
       }
       String colors = theme_color_strings[i];
-      newState.themes.push_back(Theme::parseTheme(theme_names[i], colors));
+      newState.themes.push_back(
+          Theme::parseTheme(theme_names[i], colors, screen));
     }
     if (newState.themes.empty()) {
       newState.themes.push_back(Theme{"No Themes", "", {}});
