@@ -70,7 +70,6 @@ struct AppState {
     auto theme_names = msg.getArrayProperty("theme_names");
     auto theme_color_strings = msg.getArrayProperty("theme_colors");
     auto extras = msg.getArrayProperty("extras");
-    auto epochSecondsString = msg.getProperty("epoch_time_seconds");
 
     AppState newState = currState;
 
