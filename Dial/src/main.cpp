@@ -151,7 +151,7 @@ AppState transition(const AppState &state, const InputEvent e) {
 
         screen.clearThird(UPPER_THIRD);
         screen.clearThird(LOWER_THIRD);
-        screen.writeText(data, MIDDLE_THIRD, XL);
+        screen.writeText(data, MIDDLE_THIRD, L);
       }
     }
     break;
