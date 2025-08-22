@@ -105,7 +105,7 @@ bool shouldEnterIdle(const unsigned long lastActivityDetected,
 
 bool timeHasChanged(const String currentTime) {
   String newTime = timeKeeper.getTime12Hour();
-  return newTime == currentTime;
+  return newTime != currentTime;
 }
 
 bool shouldRotateIdleData(const UIState uiState, const String currentTime) {
@@ -275,8 +275,10 @@ void loop() {
   button.update();
 
   if (shouldEnterIdle(appState.lastActivityDetected, appState.uiState)) {
+    Serial.println("Idle detected");
     onIdleDetected();
   } else if (shouldRotateIdleData(appState.uiState, appState.idleData.time)) {
+    Serial.println("Rotate idle data");
     rotateIdleDisplay();
   }
 }
