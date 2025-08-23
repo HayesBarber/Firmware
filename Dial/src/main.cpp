@@ -28,6 +28,8 @@ void onButtonPressed(int pin);
 void onScreenTouch();
 void onIdleDetected();
 void rotateIdleDisplay();
+void showTheme(const Theme &theme);
+void showDevice(const Device &device);
 
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
@@ -206,14 +208,12 @@ AppState fromShowingThemes(const AppState &state, const InputEvent e) {
     int size = next.themes.size();
     next.rotationIndex = (next.rotationIndex - 1 + size) % size;
     Theme current = next.themes[next.rotationIndex];
-    screen.drawColors(current.colorsVector, UPPER_THIRD);
-    screen.writeText(current.displayName, MIDDLE_THIRD);
+    showTheme(current);
   } else if (e == InputEvent::RightTurn) {
     int size = next.themes.size();
     next.rotationIndex = (next.rotationIndex + 1) % size;
     Theme current = next.themes[next.rotationIndex];
-    screen.drawColors(current.colorsVector, UPPER_THIRD);
-    screen.writeText(current.displayName, MIDDLE_THIRD);
+    showTheme(current);
   } else if (e == InputEvent::ButtonPress) {
     next.rotationIndex = 0;
     next.uiState = UIState::ShowingDevices;
@@ -272,6 +272,11 @@ void onIdleDetected() {
 
 void rotateIdleDisplay() {
   appState = transition(appState, InputEvent::RotateIdleData);
+}
+
+void showTheme(const Theme &theme) {
+  screen.drawColors(theme.colorsVector, UPPER_THIRD);
+  screen.writeText(theme.displayName, MIDDLE_THIRD);
 }
 
 void setup() {
