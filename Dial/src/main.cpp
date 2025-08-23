@@ -194,7 +194,7 @@ AppState fromShowingDevices(const AppState &state, const InputEvent e) {
   } else if (e == InputEvent::ScreenTouch) {
     toggleDevice(next.devices[next.rotationIndex]);
   } else if (e == InputEvent::IdleDetected) {
-    enterIdle(next);
+    return enterIdle(next);
   }
 
   return next;
@@ -223,7 +223,7 @@ AppState fromShowingThemes(const AppState &state, const InputEvent e) {
   } else if (e == InputEvent::ScreenTouch) {
     applyTheme(next.themes[next.rotationIndex]);
   } else if (e == InputEvent::IdleDetected) {
-    enterIdle(next);
+    return enterIdle(next);
   }
 
   return next;
@@ -244,6 +244,9 @@ AppState transition(const AppState &state, const InputEvent e) {
   case InputEvent::RightTurn:
     next.lastActivityDetected = millis();
   }
+
+  Serial.printf("Transition -> Current state: %d, Input event: %d\n",
+                state.uiState, e);
 
   switch (state.uiState) {
   case UIState::Idle:
