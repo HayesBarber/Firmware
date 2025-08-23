@@ -188,9 +188,8 @@ AppState fromShowingDevices(const AppState &state, const InputEvent e) {
     next.rotationIndex = 0;
     next.uiState = UIState::ShowingThemes;
     Theme current = next.themes[next.rotationIndex];
-    screen.drawColors(current.colorsVector, UPPER_THIRD);
-    screen.writeText(current.displayName, MIDDLE_THIRD);
     screen.writeText("Apply", LOWER_THIRD, S);
+    showTheme(current);
   } else if (e == InputEvent::ScreenTouch) {
     toggleDevice(next.devices[next.rotationIndex]);
   } else if (e == InputEvent::IdleDetected) {
@@ -278,6 +277,8 @@ void showTheme(const Theme &theme) {
   screen.drawColors(theme.colorsVector, UPPER_THIRD);
   screen.writeText(theme.displayName, MIDDLE_THIRD);
 }
+
+void showDevice(const Device &device) {}
 
 void setup() {
   Serial.begin(115200);
