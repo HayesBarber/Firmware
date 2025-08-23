@@ -30,6 +30,7 @@ void onIdleDetected();
 void rotateIdleDisplay();
 void showTheme(const Theme &theme);
 void showDevice(const Device &device);
+AppState enterIdle(AppState state);
 
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
@@ -193,8 +194,7 @@ AppState fromShowingDevices(const AppState &state, const InputEvent e) {
   } else if (e == InputEvent::ScreenTouch) {
     toggleDevice(next.devices[next.rotationIndex]);
   } else if (e == InputEvent::IdleDetected) {
-    next.uiState = UIState::Idle;
-    next = transition(next, InputEvent::RotateIdleData);
+    enterIdle(next);
   }
 
   return next;
@@ -223,11 +223,15 @@ AppState fromShowingThemes(const AppState &state, const InputEvent e) {
   } else if (e == InputEvent::ScreenTouch) {
     applyTheme(next.themes[next.rotationIndex]);
   } else if (e == InputEvent::IdleDetected) {
-    next.uiState = UIState::Idle;
-    next = transition(next, InputEvent::RotateIdleData);
+    enterIdle(next);
   }
 
   return next;
+}
+
+AppState enterIdle(AppState state) {
+  state.uiState = UIState::Idle;
+  return transition(state, InputEvent::RotateIdleData);
 }
 
 AppState transition(const AppState &state, const InputEvent e) {
