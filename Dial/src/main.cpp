@@ -142,7 +142,7 @@ AppState fromIdle(const AppState &state, const InputEvent e) {
     next.uiState = UIState::ShowingDevices;
     next.rotationIndex = 0;
     Device current = next.devices[next.rotationIndex];
-    screen.writeText(current.displayName, MIDDLE_THIRD);
+    showDevice(current);
     screen.drawPowerSymbol(LOWER_THIRD);
     return next;
   }
@@ -178,12 +178,12 @@ AppState fromShowingDevices(const AppState &state, const InputEvent e) {
     int size = next.devices.size();
     next.rotationIndex = (next.rotationIndex - 1 + size) % size;
     Device current = next.devices[next.rotationIndex];
-    screen.writeText(current.displayName, MIDDLE_THIRD);
+    showDevice(current);
   } else if (e == InputEvent::RightTurn) {
     int size = next.devices.size();
     next.rotationIndex = (next.rotationIndex + 1) % size;
     Device current = next.devices[next.rotationIndex];
-    screen.writeText(current.displayName, MIDDLE_THIRD);
+    showDevice(current);
   } else if (e == InputEvent::ButtonPress) {
     next.rotationIndex = 0;
     next.uiState = UIState::ShowingThemes;
@@ -218,8 +218,8 @@ AppState fromShowingThemes(const AppState &state, const InputEvent e) {
     next.uiState = UIState::ShowingDevices;
     Device current = next.devices[next.rotationIndex];
     screen.clearThird(UPPER_THIRD);
-    screen.writeText(current.displayName, MIDDLE_THIRD);
     screen.drawPowerSymbol(LOWER_THIRD);
+    showDevice(current);
   } else if (e == InputEvent::ScreenTouch) {
     applyTheme(next.themes[next.rotationIndex]);
   } else if (e == InputEvent::IdleDetected) {
@@ -278,7 +278,9 @@ void showTheme(const Theme &theme) {
   screen.writeText(theme.displayName, MIDDLE_THIRD);
 }
 
-void showDevice(const Device &device) {}
+void showDevice(const Device &device) {
+  screen.writeText(device.displayName, MIDDLE_THIRD);
+}
 
 void setup() {
   Serial.begin(115200);
