@@ -152,6 +152,36 @@ AppState fromIdle(const AppState &state, const InputEvent e) {
   return state;
 }
 
+AppState fromShowingDevices(const AppState &state, const InputEvent e) {
+  AppState next = state;
+
+  if (e == InputEvent::LeftTurn) {
+    int size = next.devices.size();
+    next.rotationIndex = (next.rotationIndex - 1 + size) % size;
+    Device current = next.devices[next.rotationIndex];
+    screen.writeText(current.displayName, MIDDLE_THIRD);
+  } else if (e == InputEvent::RightTurn) {
+    int size = next.devices.size();
+    next.rotationIndex = (next.rotationIndex + 1) % size;
+    Device current = next.devices[next.rotationIndex];
+    screen.writeText(current.displayName, MIDDLE_THIRD);
+  } else if (e == InputEvent::ButtonPress) {
+    next.rotationIndex = 0;
+    next.uiState = UIState::ShowingThemes;
+    Theme current = next.themes[next.rotationIndex];
+    screen.drawColors(current.colorsVector, UPPER_THIRD);
+    screen.writeText(current.displayName, MIDDLE_THIRD);
+    screen.writeText("Apply", LOWER_THIRD, S);
+  } else if (e == InputEvent::ScreenTouch) {
+    toggleDevice(next.devices[next.rotationIndex]);
+  } else if (e == InputEvent::IdleDetected) {
+    next.uiState = UIState::Idle;
+    next = transition(next, InputEvent::RotateIdleData);
+  }
+
+  return next;
+}
+
 AppState transition(const AppState &state, const InputEvent e) {
   AppState next = state;
 
@@ -168,30 +198,7 @@ AppState transition(const AppState &state, const InputEvent e) {
     return fromIdle(next, e);
 
   case UIState::ShowingDevices:
-    if (e == InputEvent::LeftTurn) {
-      int size = next.devices.size();
-      next.rotationIndex = (next.rotationIndex - 1 + size) % size;
-      Device current = next.devices[next.rotationIndex];
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-    } else if (e == InputEvent::RightTurn) {
-      int size = next.devices.size();
-      next.rotationIndex = (next.rotationIndex + 1) % size;
-      Device current = next.devices[next.rotationIndex];
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-    } else if (e == InputEvent::ButtonPress) {
-      next.rotationIndex = 0;
-      next.uiState = UIState::ShowingThemes;
-      Theme current = next.themes[next.rotationIndex];
-      screen.drawColors(current.colorsVector, UPPER_THIRD);
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-      screen.writeText("Apply", LOWER_THIRD, S);
-    } else if (e == InputEvent::ScreenTouch) {
-      toggleDevice(next.devices[next.rotationIndex]);
-    } else if (e == InputEvent::IdleDetected) {
-      next.uiState = UIState::Idle;
-      next = transition(next, InputEvent::RotateIdleData);
-    }
-    break;
+    return fromShowingDevices(next, e);
 
   case UIState::ShowingThemes:
     if (e == InputEvent::LeftTurn) {
