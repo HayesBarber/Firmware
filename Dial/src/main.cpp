@@ -12,6 +12,26 @@
 
 #define Serial USBSerial
 
+AppState transition(const AppState &state, const InputEvent e);
+AppState fromIdle(const AppState &state, const InputEvent e);
+AppState fromShowingDevices(const AppState &state, const InputEvent e);
+AppState fromShowingThemes(const AppState &state, const InputEvent e);
+void applyTheme(const Theme &theme);
+void toggleDevice(const Device &device);
+bool shouldEnterIdle(const unsigned long lastActivityDetected,
+                     const UIState uiState);
+bool timeHasChanged(const String currentTime);
+bool shouldRotateIdleData(const UIState uiState, const String currentTime);
+void onLeftTurn();
+void onRightTurn();
+void onButtonPressed(int pin);
+void onScreenTouch();
+void onIdleDetected();
+void rotateIdleDisplay();
+void showTheme(const Theme &theme);
+void showDevice(const Device &device);
+AppState enterIdle(AppState state);
+
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
 const uint8_t ENCODER_CLK = 13;
@@ -116,6 +136,104 @@ bool shouldRotateIdleData(const UIState uiState, const String currentTime) {
   return timeHasChanged(currentTime);
 }
 
+AppState fromIdle(const AppState &state, const InputEvent e) {
+  AppState next = state;
+
+  if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
+      e == InputEvent::ButtonPress || e == InputEvent::ScreenTouch) {
+    next.uiState = UIState::ShowingDevices;
+    next.rotationIndex = 0;
+    Device current = next.devices[next.rotationIndex];
+    showDevice(current);
+    screen.drawPowerSymbol(LOWER_THIRD);
+    return next;
+  }
+
+  if (e == InputEvent::RotateIdleData) {
+    int totalIdleItems = 1 + (next.idleData.extras.size());
+    int newIndex = (1 + next.idleData.index) % totalIdleItems;
+    next.idleData.index = newIndex;
+    next.idleData.time = timeKeeper.getTime12Hour();
+    bool isNight = TimeKeeper::isNight(next.idleData.time);
+    if (isNight) {
+      screen.off();
+    } else {
+      String data = next.idleData.index == 0
+                        ? next.idleData.time
+                        : next.idleData.extras[next.idleData.index - 1];
+
+      screen.clearThird(UPPER_THIRD);
+      screen.clearThird(LOWER_THIRD);
+      screen.writeText(data, MIDDLE_THIRD, L);
+    }
+    return next;
+  }
+
+  return next;
+}
+
+AppState fromShowingDevices(const AppState &state, const InputEvent e) {
+  AppState next = state;
+
+  if (e == InputEvent::LeftTurn) {
+    int size = next.devices.size();
+    next.rotationIndex = (next.rotationIndex - 1 + size) % size;
+    Device current = next.devices[next.rotationIndex];
+    showDevice(current);
+  } else if (e == InputEvent::RightTurn) {
+    int size = next.devices.size();
+    next.rotationIndex = (next.rotationIndex + 1) % size;
+    Device current = next.devices[next.rotationIndex];
+    showDevice(current);
+  } else if (e == InputEvent::ButtonPress) {
+    next.rotationIndex = 0;
+    next.uiState = UIState::ShowingThemes;
+    Theme current = next.themes[next.rotationIndex];
+    screen.writeText("Apply", LOWER_THIRD, S);
+    showTheme(current);
+  } else if (e == InputEvent::ScreenTouch) {
+    toggleDevice(next.devices[next.rotationIndex]);
+  } else if (e == InputEvent::IdleDetected) {
+    enterIdle(next);
+  }
+
+  return next;
+}
+
+AppState fromShowingThemes(const AppState &state, const InputEvent e) {
+  AppState next = state;
+
+  if (e == InputEvent::LeftTurn) {
+    int size = next.themes.size();
+    next.rotationIndex = (next.rotationIndex - 1 + size) % size;
+    Theme current = next.themes[next.rotationIndex];
+    showTheme(current);
+  } else if (e == InputEvent::RightTurn) {
+    int size = next.themes.size();
+    next.rotationIndex = (next.rotationIndex + 1) % size;
+    Theme current = next.themes[next.rotationIndex];
+    showTheme(current);
+  } else if (e == InputEvent::ButtonPress) {
+    next.rotationIndex = 0;
+    next.uiState = UIState::ShowingDevices;
+    Device current = next.devices[next.rotationIndex];
+    screen.clearThird(UPPER_THIRD);
+    screen.drawPowerSymbol(LOWER_THIRD);
+    showDevice(current);
+  } else if (e == InputEvent::ScreenTouch) {
+    applyTheme(next.themes[next.rotationIndex]);
+  } else if (e == InputEvent::IdleDetected) {
+    enterIdle(next);
+  }
+
+  return next;
+}
+
+AppState enterIdle(AppState state) {
+  state.uiState = UIState::Idle;
+  return transition(state, InputEvent::RotateIdleData);
+}
+
 AppState transition(const AppState &state, const InputEvent e) {
   AppState next = state;
 
@@ -129,86 +247,11 @@ AppState transition(const AppState &state, const InputEvent e) {
 
   switch (state.uiState) {
   case UIState::Idle:
-    if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
-        e == InputEvent::ButtonPress || e == InputEvent::ScreenTouch) {
-      next.uiState = UIState::ShowingDevices;
-      next.rotationIndex = 0;
-      Device current = next.devices[next.rotationIndex];
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-      screen.drawPowerSymbol(LOWER_THIRD);
-    } else if (e == InputEvent::RotateIdleData) {
-      int totalIdleItems = 1 + (next.idleData.extras.size());
-      int newIndex = (1 + next.idleData.index) % totalIdleItems;
-      next.idleData.index = newIndex;
-      next.idleData.time = timeKeeper.getTime12Hour();
-      bool isNight = TimeKeeper::isNight(next.idleData.time);
-      if (isNight) {
-        screen.off();
-      } else {
-        String data = next.idleData.index == 0
-                          ? next.idleData.time
-                          : next.idleData.extras[next.idleData.index - 1];
-
-        screen.clearThird(UPPER_THIRD);
-        screen.clearThird(LOWER_THIRD);
-        screen.writeText(data, MIDDLE_THIRD, L);
-      }
-    }
-    break;
-
+    return fromIdle(next, e);
   case UIState::ShowingDevices:
-    if (e == InputEvent::LeftTurn) {
-      int size = next.devices.size();
-      next.rotationIndex = (next.rotationIndex - 1 + size) % size;
-      Device current = next.devices[next.rotationIndex];
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-    } else if (e == InputEvent::RightTurn) {
-      int size = next.devices.size();
-      next.rotationIndex = (next.rotationIndex + 1) % size;
-      Device current = next.devices[next.rotationIndex];
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-    } else if (e == InputEvent::ButtonPress) {
-      next.rotationIndex = 0;
-      next.uiState = UIState::ShowingThemes;
-      Theme current = next.themes[next.rotationIndex];
-      screen.drawColors(current.colorsVector, UPPER_THIRD);
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-      screen.writeText("Apply", LOWER_THIRD, S);
-    } else if (e == InputEvent::ScreenTouch) {
-      toggleDevice(next.devices[next.rotationIndex]);
-    } else if (e == InputEvent::IdleDetected) {
-      next.uiState = UIState::Idle;
-      next = transition(next, InputEvent::RotateIdleData);
-    }
-    break;
-
+    return fromShowingDevices(next, e);
   case UIState::ShowingThemes:
-    if (e == InputEvent::LeftTurn) {
-      int size = next.themes.size();
-      next.rotationIndex = (next.rotationIndex - 1 + size) % size;
-      Theme current = next.themes[next.rotationIndex];
-      screen.drawColors(current.colorsVector, UPPER_THIRD);
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-    } else if (e == InputEvent::RightTurn) {
-      int size = next.themes.size();
-      next.rotationIndex = (next.rotationIndex + 1) % size;
-      Theme current = next.themes[next.rotationIndex];
-      screen.drawColors(current.colorsVector, UPPER_THIRD);
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-    } else if (e == InputEvent::ButtonPress) {
-      next.rotationIndex = 0;
-      next.uiState = UIState::ShowingDevices;
-      Device current = next.devices[next.rotationIndex];
-      screen.clearThird(UPPER_THIRD);
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-      screen.drawPowerSymbol(LOWER_THIRD);
-    } else if (e == InputEvent::ScreenTouch) {
-      applyTheme(next.themes[next.rotationIndex]);
-    } else if (e == InputEvent::IdleDetected) {
-      next.uiState = UIState::Idle;
-      next = transition(next, InputEvent::RotateIdleData);
-    }
-    break;
+    return fromShowingThemes(next, e);
   }
 
   return next;
@@ -232,6 +275,15 @@ void onIdleDetected() {
 
 void rotateIdleDisplay() {
   appState = transition(appState, InputEvent::RotateIdleData);
+}
+
+void showTheme(const Theme &theme) {
+  screen.drawColors(theme.colorsVector, UPPER_THIRD);
+  screen.writeText(theme.displayName, MIDDLE_THIRD);
+}
+
+void showDevice(const Device &device) {
+  screen.writeText(device.displayName, MIDDLE_THIRD);
 }
 
 void setup() {
