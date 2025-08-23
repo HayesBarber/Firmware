@@ -116,6 +116,42 @@ bool shouldRotateIdleData(const UIState uiState, const String currentTime) {
   return timeHasChanged(currentTime);
 }
 
+AppState fromIdle(const AppState &state, const InputEvent e) {
+  if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
+      e == InputEvent::ButtonPress || e == InputEvent::ScreenTouch) {
+    AppState next = state;
+    next.uiState = UIState::ShowingDevices;
+    next.rotationIndex = 0;
+    Device current = next.devices[next.rotationIndex];
+    screen.writeText(current.displayName, MIDDLE_THIRD);
+    screen.drawPowerSymbol(LOWER_THIRD);
+    return next;
+  }
+
+  if (e == InputEvent::RotateIdleData) {
+    AppState next = state;
+    int totalIdleItems = 1 + (next.idleData.extras.size());
+    int newIndex = (1 + next.idleData.index) % totalIdleItems;
+    next.idleData.index = newIndex;
+    next.idleData.time = timeKeeper.getTime12Hour();
+    bool isNight = TimeKeeper::isNight(next.idleData.time);
+    if (isNight) {
+      screen.off();
+    } else {
+      String data = next.idleData.index == 0
+                        ? next.idleData.time
+                        : next.idleData.extras[next.idleData.index - 1];
+
+      screen.clearThird(UPPER_THIRD);
+      screen.clearThird(LOWER_THIRD);
+      screen.writeText(data, MIDDLE_THIRD, L);
+    }
+    return next;
+  }
+
+  return state;
+}
+
 AppState transition(const AppState &state, const InputEvent e) {
   AppState next = state;
 
@@ -129,32 +165,7 @@ AppState transition(const AppState &state, const InputEvent e) {
 
   switch (state.uiState) {
   case UIState::Idle:
-    if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
-        e == InputEvent::ButtonPress || e == InputEvent::ScreenTouch) {
-      next.uiState = UIState::ShowingDevices;
-      next.rotationIndex = 0;
-      Device current = next.devices[next.rotationIndex];
-      screen.writeText(current.displayName, MIDDLE_THIRD);
-      screen.drawPowerSymbol(LOWER_THIRD);
-    } else if (e == InputEvent::RotateIdleData) {
-      int totalIdleItems = 1 + (next.idleData.extras.size());
-      int newIndex = (1 + next.idleData.index) % totalIdleItems;
-      next.idleData.index = newIndex;
-      next.idleData.time = timeKeeper.getTime12Hour();
-      bool isNight = TimeKeeper::isNight(next.idleData.time);
-      if (isNight) {
-        screen.off();
-      } else {
-        String data = next.idleData.index == 0
-                          ? next.idleData.time
-                          : next.idleData.extras[next.idleData.index - 1];
-
-        screen.clearThird(UPPER_THIRD);
-        screen.clearThird(LOWER_THIRD);
-        screen.writeText(data, MIDDLE_THIRD, L);
-      }
-    }
-    break;
+    return fromIdle(next, e);
 
   case UIState::ShowingDevices:
     if (e == InputEvent::LeftTurn) {
