@@ -137,9 +137,10 @@ bool shouldRotateIdleData(const UIState uiState, const String currentTime) {
 }
 
 AppState fromIdle(const AppState &state, const InputEvent e) {
+  AppState next = state;
+
   if (e == InputEvent::LeftTurn || e == InputEvent::RightTurn ||
       e == InputEvent::ButtonPress || e == InputEvent::ScreenTouch) {
-    AppState next = state;
     next.uiState = UIState::ShowingDevices;
     next.rotationIndex = 0;
     Device current = next.devices[next.rotationIndex];
@@ -149,7 +150,6 @@ AppState fromIdle(const AppState &state, const InputEvent e) {
   }
 
   if (e == InputEvent::RotateIdleData) {
-    AppState next = state;
     int totalIdleItems = 1 + (next.idleData.extras.size());
     int newIndex = (1 + next.idleData.index) % totalIdleItems;
     next.idleData.index = newIndex;
@@ -169,7 +169,7 @@ AppState fromIdle(const AppState &state, const InputEvent e) {
     return next;
   }
 
-  return state;
+  return next;
 }
 
 AppState fromShowingDevices(const AppState &state, const InputEvent e) {
