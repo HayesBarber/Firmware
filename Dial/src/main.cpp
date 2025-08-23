@@ -12,6 +12,23 @@
 
 #define Serial USBSerial
 
+AppState transition(const AppState &state, const InputEvent e);
+AppState fromIdle(const AppState &state, const InputEvent e);
+AppState fromShowingDevices(const AppState &state, const InputEvent e);
+AppState fromShowingThemes(const AppState &state, const InputEvent e);
+void applyTheme(const Theme &theme);
+void toggleDevice(const Device &device);
+bool shouldEnterIdle(const unsigned long lastActivityDetected,
+                     const UIState uiState);
+bool timeHasChanged(const String currentTime);
+bool shouldRotateIdleData(const UIState uiState, const String currentTime);
+void onLeftTurn();
+void onRightTurn();
+void onButtonPressed(int pin);
+void onScreenTouch();
+void onIdleDetected();
+void rotateIdleDisplay();
+
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
 const uint8_t ENCODER_CLK = 13;
