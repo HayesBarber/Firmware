@@ -158,13 +158,19 @@ AppState fromIdle(const AppState &state, const InputEvent e) {
     if (isNight) {
       screen.off();
     } else {
-      String data = next.idleData.index == 0
-                        ? next.idleData.time
-                        : next.idleData.extras[next.idleData.index - 1];
-
       screen.clearThird(UPPER_THIRD);
       screen.clearThird(LOWER_THIRD);
-      screen.writeText(data, MIDDLE_THIRD, L);
+
+      if (next.idleData.index == 0) {
+        screen.writeText(next.idleData.time, MIDDLE_THIRD, XL);
+      } else {
+        TextSize textSize = L;
+        if (next.idleData.index - 1 < next.idleData.extrasFontSizes.size()) {
+          textSize = next.idleData.extrasFontSizes[next.idleData.index - 1];
+        }
+        screen.writeText(next.idleData.extras[next.idleData.index - 1],
+                         MIDDLE_THIRD, textSize);
+      }
     }
     return next;
   }
