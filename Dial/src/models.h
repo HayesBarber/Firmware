@@ -48,6 +48,7 @@ struct IdleData {
   int index;
   String time;
   std::vector<String> extras;
+  std::vector<TextSize> extrasFontSizes;
 };
 
 enum class UIState { Idle, ShowingDevices, ShowingThemes };
@@ -88,6 +89,7 @@ struct AppState {
     auto theme_names = msg.getArrayProperty("theme_names");
     auto theme_color_strings = msg.getArrayProperty("theme_colors");
     auto extras = msg.getArrayProperty("extras");
+    auto extrasFontSizes = msg.getArrayProperty("extras_font_sizes");
 
     AppState newState = currState;
 
@@ -113,8 +115,16 @@ struct AppState {
       newState.themes.push_back(Theme{"No Themes", "", {}});
     }
 
+    newState.idleData.extrasFontSizes.clear();
+    std::vector<TextSize> parsedFontSizes;
+    for (size_t i = 0; i < extrasFontSizes.size(); i++) {
+      parsedFontSizes.push_back(
+          GFXDriver::textSizeFromString(extrasFontSizes[i]));
+    }
+
     newState.idleData.index = 0;
     newState.idleData.extras = extras;
+    newState.idleData.extrasFontSizes = parsedFontSizes;
 
     return newState;
   }
