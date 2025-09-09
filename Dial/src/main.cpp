@@ -31,6 +31,7 @@ void rotateIdleDisplay();
 void showTheme(const Theme &theme);
 void showDevice(const Device &device);
 AppState enterIdle(AppState state);
+void checkIn();
 
 const uint16_t HTTP_PORT = 80;
 const uint16_t UDP_PORT = 4210;
