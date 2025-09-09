@@ -62,6 +62,9 @@ String onMessage(const Message &msg) {
     reply = String(millis());
   } else if (action == "version") {
     reply = VERSION;
+  } else if (action == "checkIn") {
+    checkIn();
+    reply = "Checked in";
   }
 
   return reply;
@@ -80,6 +83,10 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   client.setBaseUrl(baseUrl);
   Serial.println("Set base URL to: " + baseUrl);
 
+  checkIn();
+}
+
+void checkIn() {
   Message req;
   req.addProperty("name", "Dial");
   req.addProperty("ip", wifi.getIP().toString());
