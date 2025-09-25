@@ -24,6 +24,20 @@ void udpTask(void *pvParameters) {
   }
 }
 
+void checkIn() {
+  Message msg;
+  msg.addProperty("name", "TV LEDs");
+  msg.addProperty("ip", wifi.getIP().toString());
+  msg.addProperty("mac", wifi.getMac());
+  msg.addProperty("type", "led_strip");
+  msg.addProperty("power_state", stripDriver.getPowerState() ? "on" : "off");
+
+  String jsonMessage = msg.toJson();
+  Serial.println("Sending check-in message: " + jsonMessage);
+  HttpResponse response = client.post("/discovery/check-in", jsonMessage);
+  Serial.printf("Check-in response code: %d\n", response.statusCode);
+}
+
 String onMessage(const Message &msg) {
   String action = msg.getProperty("action");
   String reply = "Unknown action";
@@ -72,20 +86,6 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   Serial.println("Set base URL to: " + baseUrl);
 
   checkIn();
-}
-
-void checkIn() {
-  Message msg;
-  msg.addProperty("name", "TV LEDs");
-  msg.addProperty("ip", wifi.getIP().toString());
-  msg.addProperty("mac", wifi.getMac());
-  msg.addProperty("type", "led_strip");
-  msg.addProperty("power_state", stripDriver.getPowerState() ? "on" : "off");
-
-  String jsonMessage = msg.toJson();
-  Serial.println("Sending check-in message: " + jsonMessage);
-  HttpResponse response = client.post("/discovery/check-in", jsonMessage);
-  Serial.printf("Check-in response code: %d\n", response.statusCode);
 }
 
 void setup() {
