@@ -51,6 +51,9 @@ String onMessage(const Message &msg) {
     reply = client.getBaseUrl();
   } else if (action == "getCurrentColors") {
     reply = stripDriver.getCurrentColors();
+  } else if (action == "checkIn") {
+    checkIn();
+    reply = "Checked in";
   }
 
   return reply;
