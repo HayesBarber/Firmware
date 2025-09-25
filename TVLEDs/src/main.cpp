@@ -68,6 +68,10 @@ void onDiscovery(IPAddress sender, uint16_t port, const String &message) {
   client.setBaseUrl(baseUrl);
   Serial.println("Set base URL to: " + baseUrl);
 
+  checkIn();
+}
+
+void checkIn() {
   Message msg;
   msg.addProperty("name", "TV LEDs");
   msg.addProperty("ip", wifi.getIP().toString());
